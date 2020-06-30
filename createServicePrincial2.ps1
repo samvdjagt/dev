@@ -4,16 +4,12 @@ $ResourceGroupName = Get-AutomationVariable -Name 'ResourceGroupName'
 $RDBrokerURL = Get-AutomationVariable -Name 'RDBrokerURL'
 $ResourceURL = Get-AutomationVariable -Name 'ResourceURL'
 $fileURI = Get-AutomationVariable -Name 'fileURI'
-$AutomationAccountName = Get-AutomationVariable -Name 'accountName'
-$WebApp = Get-AutomationVariable -Name 'webApp'
-$ApiApp = Get-AutomationVariable -Name 'apiApp'
+$AutomationAccountName = Get-AutomationVariable -Name 'autoAccountName'
+$AppName = Get-AutomationVariable -Name 'AppName'
 
 $FileNames = "msft-wvd-saas-api.zip,msft-wvd-saas-web.zip,AzureModules.zip"
 $SplitFilenames = $FileNames.split(",")
 foreach($Filename in $SplitFilenames){
-if($Filename -eq "AzureModules.zip"){
-Invoke-WebRequest -Uri $fileURI/scripts/$Filename -OutFile "C:\$Filename"
-}else{
 Invoke-WebRequest -Uri $fileURI/$Filename -OutFile "C:\$Filename"
 }
 }
@@ -38,81 +34,74 @@ $AzCredentials = Get-AutomationPSCredential -Name $CredentialAssetName
 Connect-AzAccount -Environment 'AzureCloud' -Credential $AzCredentials
 Select-AzSubscription -SubscriptionId $SubscriptionId
 
-New-Item -Path "C:\msft-wvd-saas-web" -ItemType directory -Force -ErrorAction SilentlyContinue
-$WebAppDirectory = "C:\msft-wvd-saas-web"
+# Get the Role Assignment of the authenticated user
+$RoleAssignment = Get-AzRoleAssignment -SignInName $context.Account
 
-#Function to get PublishingProfileCredentials
-function Get-PublishingProfileCredentials ($resourceGroupName,$webAppName) {
-
-	$resourceType = "Microsoft.Web/sites/config"
-	$resourceName = "$webAppName/publishingcredentials"
-
-	$publishingCredentials = Invoke-AzResourceAction -ResourceGroupName $resourceGroupName -ResourceType $resourceType -ResourceName $resourceName -Action list -ApiVersion 2015-08-01 -Force
-
-	return $publishingCredentials
-}
-
-#Function to get KuduApiAuthorisationHeaderValue
-function Get-KuduApiAuthorisationHeaderValue ($resourceGroupName,$webAppName,$slotName = $null) {
-	$publishingCredentials = Get-PublishingProfileCredentials $resourceGroupName $webAppName $slotName
-	return ("Basic {0}" -f [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $publishingCredentials.Properties.PublishingUserName,$publishingCredentials.Properties.PublishingPassword))))
-}
-
-#Function to confirm files are uploaded or not in both azure app services
-function RunCommand ($dir,$command,$resourceGroupName,$webAppName,$slotName = $null) {
-	$kuduApiAuthorisationToken = Get-KuduApiAuthorisationHeaderValue $resourceGroupName $webAppName $slotName
-	$kuduApiUrl = "https://$webAppName.scm.azurewebsites.net/api/command"
-	$Body =
-	@{
-		"command" = $command;
-		"dir" = $dir
-	}
-	$bodyContent = @($Body) | ConvertTo-Json
-	#Write-output $bodyContent
-	Invoke-RestMethod -Uri $kuduApiUrl `
- 		-Headers @{ "Authorization" = $kuduApiAuthorisationToken; "If-Match" = "*" } `
- 		-Method POST -ContentType "application/json" -Body $bodyContent
-}
-
-try
+# Validate whether the authenticated user having the Owner or Contributor role
+if ($RoleAssignment.RoleDefinitionName -eq "Owner" -or $RoleAssignment.RoleDefinitionName -eq "Contributor")
 {
-	# Get Url of Web-App
-	$GetWebApp = Get-AzWebApp -Name $WebApp -ResourceGroupName $ResourceGroupName
-	$WebUrl = $GetWebApp.DefaultHostName
-
 	#$requiredAccessName=$ResourceURL.Split("/")[3]
-	$redirectURL = "https://" + "$WebUrl" + "/"
-
-    #Get the credential with the above name from the Automation Asset store
-    $Credentials = Get-AutomationPSCredential -Name $CredentialAssetName
-    #Connect to AzureAD
-    Connect-AzureAD -Credential $Credentials
-
-	#Static value of wvdInfra web appname/appid
-	$wvdinfraWebAppId = "5a0aa725-4958-4b0c-80a9-34562e23f3b7"
-	$serviceIdinfo = Get-AzADServicePrincipal -ErrorAction SilentlyContinue | Where-Object { $_.ApplicationId -eq $wvdinfraWebAppId }
-
-	$wvdInfraWebAppObjId = $serviceIdinfo.Id
-	#generate unique ID based on subscription ID
-	$unique_subscription_id = ($SubscriptionId).Replace('-','').substring(0,19)
-
-
-	#generate the display name for native app in AAD
-	$wvdSaaS_clientapp_display_name = "wvdSaaS" + $ResourceGroupName.ToLowerInvariant() + $unique_subscription_id.ToLowerInvariant()
+	$redirectURL = "https://" + "$AppName" + ".azurewebsites.net" + "/"
 	
-	#Creating ClientApp Ad application in azure Active Directory
-	$clientAdApp = New-AzureADApplication -DisplayName $wvdSaaS_clientapp_display_name -ReplyUrls $redirectURL -PublicClient $true -AvailableToOtherTenants $false -Verbose -ErrorAction Stop
+	# Check whether the AD Application exist/ not
+	$existingApplication = Get-AzADApplication -DisplayName $AppName -ErrorAction SilentlyContinue
+	if ($existingApplication -ne $null)
+	{
+		$appId = $existingApplication.ApplicationId
+		Write-Output "An AAD Application already exists with AppName $AppName(Application Id: $appId). Choose a different AppName" -Verbose
+		exit
+	}
 
-	#Collecting WVD Serviceprincipal Api Permission
-	$WVDServicePrincipal = Get-AzureADServicePrincipal -ObjectId $wvdInfraWebAppObjId #-SearchString $wvdInfraWebAppName | Where-Object {$_.DisplayName -eq $wvdInfraWebAppName}
-    
+	try
+	{
+		# Create a new AD Application with provided AppName
+		$azAdApplication = New-AzureADApplication -DisplayName $AppName -PublicClient $false -AvailableToOtherTenants $false -ReplyUrls $redirectURL
+	}
+	catch
+	{
+		Write-Error "You must call the Connect-AzureAD cmdlet before calling any other cmdlets"
+		exit
+	}
+
+	# Create a Client Secret
+	$StartDate = Get-Date
+	$EndDate = $StartDate.AddYears(280)
+	$Guid = New-Guid
+	$PasswordCredential = New-Object -TypeName Microsoft.Open.AzureAD.Model.PasswordCredential
+	$PasswordCredential.StartDate = $StartDate
+	$PasswordCredential.EndDate = $EndDate
+	$PasswordCredential.KeyId = $Guid
+	$PasswordCredential.Value = ([System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes(($Guid)))) + "="
+	$ClientSecret = $PasswordCredential.Value
+
+	Write-Output "Creating a new Application in AAD" -Verbose
+	
+	# Create an app credential to the Application
+	$secureClientSecret = ConvertTo-SecureString -String $ClientSecret -AsPlainText -Force
+	New-AzADAppCredential -ObjectId $azAdApplication.ObjectId -Password $secureClientSecret -StartDate $StartDate -EndDate $EndDate
+
+	# Get the applicationId
+	$applicationId = $azAdApplication.AppId
+	Write-Output "Azure AAD Application creation completed successfully with AppName $AppName (Application Id is: $applicationId)" -Verbose
+
+	# Create new Service Principal
+	Write-Output "Creating a new Service Principal" -Verbose
+	$ServicePrincipal = New-AzADServicePrincipal -ApplicationId $applicationId
+
+	# Get the Service Principal
+	Get-AzADServicePrincipal -ApplicationId $applicationId
+	$ServicePrincipalName = $ServicePrincipal.ServicePrincipalNames
+	Write-Output "Service Principal creation completed successfully for AppName $AppName (Application Id is: $applicationId)" -Verbose
+
+	#Collecting WVD Serviceprincipal Api Permission and set to client app registration
+	$WVDServPrincipalApi = Get-AzADServicePrincipal -ApplicationId "5a0aa725-4958-4b0c-80a9-34562e23f3b7"
+	$WVDServicePrincipal = Get-AzureADServicePrincipal -ObjectId $WVDServPrincipalApi.Id
 	$AzureAdResouceAcessObject = New-Object -TypeName "Microsoft.Open.AzureAD.Model.RequiredResourceAccess"
 	$AzureAdResouceAcessObject.ResourceAppId = $WVDServicePrincipal.AppId
 	foreach ($permission in $WVDServicePrincipal.Oauth2Permissions) {
 		$AzureAdResouceAcessObject.ResourceAccess += New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList $permission.Id,"Scope"
 	}
-
-	#Collecting AzureService Management Api permission
+	#Collecting AzureService Management Api permission and set to client app registration
 	$AzureServMgmtApi = Get-AzADServicePrincipal -ApplicationId "797f4846-ba00-4fd7-ba43-dac1f8f63013"
 	$AzureAdServMgmtApi = Get-AzureADServicePrincipal -ObjectId $AzureServMgmtApi.Id
 	$AzureServMgmtApiResouceAcessObject = New-Object -TypeName "Microsoft.Open.AzureAD.Model.RequiredResourceAccess"
@@ -121,15 +110,25 @@ try
 		$AzureServMgmtApiResouceAcessObject.ResourceAccess += New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList $SerVMgmtAPipermission.Id,"Scope"
 	}
 
-	#Adding WVD Api Required Access and Azure Service Management Api required access Permissions to ClientAPP AD Application.
-	Set-AzureADApplication -ObjectId $clientAdApp.ObjectId -RequiredResourceAccess $AzureAdResouceAcessObject,$AzureServMgmtApiResouceAcessObject -ErrorAction Stop
-	
-}
+	# Set Microsoft Graph API permission to Client App Registration
+	$MsftGraphApi = Get-AzADServicePrincipal -ApplicationId "00000003-0000-0000-c000-000000000000"
+	$AzureGraphApiPrincipal = Get-AzureADServicePrincipal -ObjectId $MsftGraphApi.Id
+	$AzureGraphApiAccessObject = New-Object -TypeName "Microsoft.Open.AzureAD.Model.RequiredResourceAccess"
+	$AzureGraphApiAccessObject.ResourceAppId = $AzureGraphApiPrincipal.AppId
+	$permission = $AzureGraphApiPrincipal.Oauth2Permissions | Where-Object { $_.Value -eq "User.Read" }
+	$AzureGraphApiAccessObject.ResourceAccess = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList $permission.Id,"Scope"
 
-catch
+
+	# Add the WVD API,Log Analytics API and Microsoft Graph API permissions to the ADApplication
+	Set-AzureADApplication -ObjectId $azAdApplication.ObjectId -RequiredResourceAccess $AzureAdResouceAcessObject,$AzureServMgmtApiResouceAcessObject,$AzureGraphApiAccessObject -ErrorAction Stop
+
+	$global:servicePrincipalCredentials = New-Object System.Management.Automation.PSCredential ($applicationId, $secureClientSecret)
+	# Get the Client Id/Application Id and Client Secret
+	Write-Output "Credentials for the service principal are stored in the `$servicePrincipalCredentials object"
+}
+else
 {
-	Write-Output $_.Exception.Message
-	throw $_.Exception.Message
+	Write-Output "Authenticated user should have the Owner/Contributor permissions"
 }
 
 New-PSDrive -Name RemoveAccount -PSProvider FileSystem -Root "C:\" | Out-Null
