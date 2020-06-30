@@ -2,7 +2,7 @@
 $SubscriptionId = Get-AutomationVariable -Name 'subscriptionid'
 $ResourceGroupName = Get-AutomationVariable -Name 'ResourceGroupName'
 $fileURI = Get-AutomationVariable -Name 'fileURI'
-$AutomationAccountName = Get-AutomationVariable -Name 'autoAccountName'
+$AutomationAccountName = Get-AutomationVariable -Name 'AccountName'
 $AppName = Get-AutomationVariable -Name 'AppName'
 
 $FileNames = "msft-wvd-saas-api.zip,msft-wvd-saas-web.zip,AzureModules.zip"
