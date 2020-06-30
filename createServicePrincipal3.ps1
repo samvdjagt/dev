@@ -10,13 +10,21 @@ param(
 	[ValidateNotNullOrEmpty()]
 	[string]$SubscriptionId,
   
-  [Parameter(Mandatory = $true)]
+  	[Parameter(Mandatory = $true)]
 	[ValidateNotNullOrEmpty()]
 	[string]$ResourceGroupName,
   
-  [Parameter(Mandatory = $true)]
+  	[Parameter(Mandatory = $true)]
 	[ValidateNotNullOrEmpty()]
-	[string]$fileURI
+	[string]$fileURI,
+	
+	  [Parameter(Mandatory = $true)]
+	[ValidateNotNullOrEmpty()]
+	[string]$adminUPN,
+	
+	  [Parameter(Mandatory = $true)]
+	[ValidateNotNullOrEmpty()]
+	[secureString]$adminPassword
 )
 
 $FileNames = "msft-wvd-saas-api.zip,msft-wvd-saas-web.zip,AzureModules.zip"
@@ -43,7 +51,7 @@ $CredentialAssetName = 'ManagementUXDeploy'
 #Authenticate Azure
 #Get the credential with the above name from the Automation Asset store
 #$AzCredentials = Get-AutomationPSCredential -Name $CredentialAssetName
-$AzCredentials = New-Object System.Management.Automation.PsCredential("admin@gt1027.onmicrosoft.com", (ConvertTo-SecureString "ReverseParol44" -AsPlainText -Force))
+$AzCredentials = New-Object System.Management.Automation.PsCredential($adminUPN, $adminPassword)
 $AzCredentials.password.MakeReadOnly()
 $username = $AzCredentials.username
 Connect-AzAccount -Environment 'AzureCloud' -Credential $AzCredentials
