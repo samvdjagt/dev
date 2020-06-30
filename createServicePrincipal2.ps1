@@ -132,16 +132,25 @@ if ($RoleAssignment.RoleDefinitionName -eq "Owner" -or $RoleAssignment.RoleDefin
 	$AzureGraphApiAccessObject.ResourceAccess = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList $permission.Id,"Scope"
 	$permission2 = $AzureGraphApiPrincipal.Oauth2Permissions | Where-Object { $_.Value -eq "User.ReadWrite" }
 	$AzureGraphApiAccessObject.ResourceAccess += New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList $permission2.Id,"Scope"
-	#$permission = $AzureGraphApiPrincipal.Oauth2Permissions | Where-Object { $_.Value -eq "Group.ReadWrite.all" }
-	#$AzureGraphApiAccessObject.ResourceAccess += New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList $permission.Id,"Scope"
-	#$permission = $AzureGraphApiPrincipal.Oauth2Permissions | Where-Object { $_.Value -eq "Application.ReadWrite.OwnedBy" }
-	#$AzureGraphApiAccessObject.ResourceAccess += New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList $permission.Id,"Scope"
+	$permission3 = $AzureGraphApiPrincipal.Oauth2Permissions | Where-Object { $_.Value -eq "Group.ReadWrite.all" }
+	$AzureGraphApiAccessObject.ResourceAccess += New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList $permission3.Id,"Scope"
+	$permission4 = $AzureGraphApiPrincipal.AppRoles | Where-Object { $_.Value -eq "Application.ReadWrite.OwnedBy" }
+	$AzureGraphApiAccessObject.ResourceAccess += New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList $permission4.Id,"Role"
+
+
+    #$AzureAdOauth2Object = New-Object -TypeName "Microsoft.Open.AzureAD.Model.OAuth2Permission"
+    #$AzureAdOauth2Object.AdminConsentDescription = $permission3.AdminConsentDescription
+    #$AzureAdOauth2Object.AdminConsentDisplayName = $permission3.AdminConsentDisplayName
+    #$AzureAdOauth2Object.Id = $permission3.Id
+    #$AzureAdOauth2Object.IsEnabled = $permission3.IsEnabled
+    #$AzureAdOauth2Object.Type = $permission3.Type
+    #$AzureAdOauth2Object.UserConsentDescription = $permission3.UserConsentDescription
+    #$AzureAdOauth2Object.UserConsentDisplayName = $permission3.UserConsentDisplayName
+    #$AzureAdOauth2Object.Value = $permission3.Value
 
 	# Add the WVD API,Log Analytics API and Microsoft Graph API permissions to the ADApplication
 	Set-AzureADApplication -ObjectId $azAdApplication.ObjectId -RequiredResourceAccess $AzureAdResouceAcessObject,$AzureServMgmtApiResouceAcessObject,$AzureGraphApiAccessObject -ErrorAction Stop
-	
-	New-AzRoleAssignment -ApplicationId $applicationId -RoleDefinitionName 'User Access Administrator'
-	
+    #Set-AzureADApplication -ObjectId $azAdApplication.ObjectId -Oauth2Permissions $AzureAdOauth2Object -Oauth2RequirePostResponse $false -Oauth2AllowImplicitFlow $true
 	$global:servicePrincipalCredentials = New-Object System.Management.Automation.PSCredential ($applicationId, $secureClientSecret)
 	# Get the Client Id/Application Id and Client Secret
 	Write-Output "Credentials for the service principal are stored in the `$servicePrincipalCredentials object"
@@ -150,5 +159,4 @@ else
 {
 	Write-Output "Authenticated user should have the Owner/Contributor permissions"
 }
-
 
