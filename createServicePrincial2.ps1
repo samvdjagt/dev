@@ -14,7 +14,10 @@ Invoke-WebRequest -Uri $fileURI/$Filename -OutFile "C:\$Filename"
 #New-Item -Path "C:\msft-wvd-saas-offering" -ItemType directory -Force -ErrorAction SilentlyContinue
 Expand-Archive "C:\AzureModules.zip" -DestinationPath 'C:\Modules\Global' -ErrorAction SilentlyContinue
 
-Import-Module Az -Global
+Import-Module Az.Accounts -Global
+Import-Module Az.Resources -Global
+Import-Module Az.Websites -Global
+Import-Module Az.Automation -Global
 Import-Module AzureAD -Global
 
 Set-ExecutionPolicy -ExecutionPolicy Undefined -Scope Process -Force -Confirm:$false
