@@ -24,13 +24,13 @@ Set-ExecutionPolicy -ExecutionPolicy Undefined -Scope Process -Force -Confirm:$f
 Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope LocalMachine -Force -Confirm:$false
 Get-ExecutionPolicy -List
 #The name of the Automation Credential Asset this runbook will use to authenticate to Azure.
-#$CredentialAssetName = 'ManagementUXDeploy'
+$CredentialAssetName = 'ManagementUXDeploy'
 
 #Authenticate Azure
 #Get the credential with the above name from the Automation Asset store
-#$AzCredentials = Get-AutomationPSCredential -Name $CredentialAssetName
-#Connect-AzAccount -Environment 'AzureCloud' -Credential $AzCredentials
-#Select-AzSubscription -SubscriptionId $SubscriptionId
+$AzCredentials = Get-AutomationPSCredential -Name $CredentialAssetName
+Connect-AzAccount -Environment 'AzureCloud' -Credential $AzCredentials
+Select-AzSubscription -SubscriptionId $SubscriptionId
 
 # Get the context
 $context = Get-AzContext
@@ -39,10 +39,6 @@ if ($context -eq $null)
 	Write-Error "Please authenticate to Azure & Azure AD using Login-AzAccount and Connect-AzureAD cmdlets and then run this script"
 	exit
 }
-
-# Select the subscription
-$Subscription = Select-AzSubscription -SubscriptionId $SubscriptionId
-Set-AzContext -SubscriptionObject $Subscription.ExtendedProperties
 
 # Get the Role Assignment of the authenticated user
 $RoleAssignment = Get-AzRoleAssignment -SignInName $context.Account
