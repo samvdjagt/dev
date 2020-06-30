@@ -102,7 +102,7 @@ if ($RoleAssignment.RoleDefinitionName -eq "Owner" -or $RoleAssignment.RoleDefin
 	$ServicePrincipalName = $ServicePrincipal.ServicePrincipalNames
 	Write-Output "Service Principal creation completed successfully for AppName $AppName (Application Id is: $applicationId)" -Verbose
 
-	$ownerId = (Get-AzADUser -UserPrincipalName $AzCredentials.username).objectId
+	$ownerId = (Get-AzADUser -UserPrincipalName $AzCredentials.username).Id
 	Add-AzureADServicePrincipalOwner -ObjectId $ServicePrincipal.ObjectId -RefObjectId $ownerId
 	Write-Output "Azure admin successfully assigned owner role on the servcie principal" -Verbose
 
