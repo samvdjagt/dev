@@ -32,6 +32,8 @@ $AzCredentials = Get-AutomationPSCredential -Name $CredentialAssetName
 Connect-AzAccount -Environment 'AzureCloud' -Credential $AzCredentials
 Select-AzSubscription -SubscriptionId $SubscriptionId
 
+$context = Get-AzContext
+
 # Get the Role Assignment of the authenticated user
 $RoleAssignment = Get-AzRoleAssignment -SignInName $context.Account
 
