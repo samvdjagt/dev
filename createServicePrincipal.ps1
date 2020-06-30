@@ -17,17 +17,8 @@ Administrator
  Example: .\createWvdMgmtUxAppRegistration.ps1  -AppName "Name of the Application" -SubscriptionId "Your Azure SubscriptionId"
 #>
 
-param(
-
-	[Parameter(Mandatory = $true)]
-	[ValidateNotNullOrEmpty()]
-	[string]$AppName,
-
-	[Parameter(Mandatory = $true)]
-	[ValidateNotNullOrEmpty()]
-	[string]$SubscriptionId
-
-)
+$SubscriptionId = Get-AutomationVariable -Name 'subscriptionid'
+$AppName = Get-AutomationVariable -Name 'AppName'
 
 # Set the ExecutionPolicy
 Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser -Force -Confirm:$false
