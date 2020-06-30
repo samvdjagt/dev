@@ -10,7 +10,7 @@ $SplitFilenames = $FileNames.split(",")
 foreach($Filename in $SplitFilenames){
 Invoke-WebRequest -Uri $fileURI/$Filename -OutFile "C:\$Filename"
 }
-}
+
 #New-Item -Path "C:\msft-wvd-saas-offering" -ItemType directory -Force -ErrorAction SilentlyContinue
 Expand-Archive "C:\AzureModules.zip" -DestinationPath 'C:\Modules\Global' -ErrorAction SilentlyContinue
 
