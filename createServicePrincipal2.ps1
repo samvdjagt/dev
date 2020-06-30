@@ -96,7 +96,6 @@ if ($RoleAssignment.RoleDefinitionName -eq "Owner" -or $RoleAssignment.RoleDefin
 	# Create new Service Principal
 	Write-Output "Creating a new Service Principal" -Verbose
 	$ServicePrincipal = New-AzADServicePrincipal -ApplicationId $applicationId
-    New-AzRoleAssignment -ApplicationId $applicationId -RoleDefinitionName 'User Access Administrator'
 
 	# Get the Service Principal
 	Get-AzADServicePrincipal -ApplicationId $applicationId
