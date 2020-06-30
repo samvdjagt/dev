@@ -30,7 +30,7 @@ $CredentialAssetName = 'ManagementUXDeploy'
 #Get the credential with the above name from the Automation Asset store
 $AzCredentials = Get-AutomationPSCredential -Name $CredentialAssetName
 Connect-AzAccount -Environment 'AzureCloud' -Credential $AzCredentials
-Connect-AzureAD -Credential $AzCredentials
+Connect-AzureAD -AzureEnvironmentName 'AzureCloud' -Credential $AzCredentials
 Select-AzSubscription -SubscriptionId $SubscriptionId
 
 # Get the context
