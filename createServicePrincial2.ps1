@@ -28,8 +28,7 @@ $CredentialAssetName = 'ManagementUXDeploy'
 
 #Authenticate Azure
 #Get the credential with the above name from the Automation Asset store
-#$AzCredentials = Get-AutomationPSCredential -Name $CredentialAssetName
-$AzCredentials = New-Object System.Management.Automation.PsCredential("admin@gt1027.onmicrosoft.com", (ConvertTo-SecureString "ReverseParol44" -AsPlainText -Force))
+$AzCredentials = Get-AutomationPSCredential -Name $CredentialAssetName
 $AzCredentials.password.MakeReadOnly()
 $username = $AzCredentials.username
 Connect-AzAccount -Environment 'AzureCloud' -Credential $AzCredentials
