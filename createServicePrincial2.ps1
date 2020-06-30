@@ -31,7 +31,7 @@ $CredentialAssetName = 'ManagementUXDeploy'
 #$AzCredentials = Get-AutomationPSCredential -Name $CredentialAssetName
 $AzCredentials = New-Object System.Management.Automation.PsCredential("admin@gt1027.onmicrosoft.com", (ConvertTo-SecureString "ReverseParol44" -AsPlainText -Force))
 $AzCredentials.password.MakeReadOnly()
-$AzCredentials.username.MakeReadOnly()
+$username = $AzCredentials.username
 Connect-AzAccount -Environment 'AzureCloud' -Credential $AzCredentials
 Connect-AzureAD -AzureEnvironmentName 'AzureCloud' -Credential $AzCredentials
 Select-AzSubscription -SubscriptionId $SubscriptionId
@@ -103,7 +103,7 @@ if ($RoleAssignment.RoleDefinitionName -eq "Owner" -or $RoleAssignment.RoleDefin
 	$ServicePrincipalName = $ServicePrincipal.ServicePrincipalNames
 	Write-Output "Service Principal creation completed successfully for AppName $AppName (Application Id is: $applicationId)" -Verbose
 
-	$ownerId = (Get-AzADUser -UserPrincipalName $AzCredentials.username).Id
+	$ownerId = (Get-AzADUser -UserPrincipalName $username).Id
 	Add-AzureADServicePrincipalOwner -ObjectId $ServicePrincipal.ObjectId -RefObjectId $ownerId
 	Write-Output "Azure admin successfully assigned owner role on the servcie principal" -Verbose
 
@@ -131,12 +131,12 @@ if ($RoleAssignment.RoleDefinitionName -eq "Owner" -or $RoleAssignment.RoleDefin
 	$AzureGraphApiAccessObject.ResourceAppId = $AzureGraphApiPrincipal.AppId
 	$permission = $AzureGraphApiPrincipal.Oauth2Permissions | Where-Object { $_.Value -eq "User.Read" }
 	$AzureGraphApiAccessObject.ResourceAccess = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList $permission.Id,"Scope"
-	$permission = $AzureGraphApiPrincipal.Oauth2Permissions | Where-Object { $_.Value -eq "User.ReadWrite" }
-	$AzureGraphApiAccessObject.ResourceAccess += New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList $permission.Id,"Scope"
-	$permission = $AzureGraphApiPrincipal.Oauth2Permissions | Where-Object { $_.Value -eq "Group.ReadWrite.all" }
-	$AzureGraphApiAccessObject.ResourceAccess += New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList $permission.Id,"Scope"
-	$permission = $AzureGraphApiPrincipal.Oauth2Permissions | Where-Object { $_.Value -eq "Application.ReadWrite.OwnedBy" }
-	$AzureGraphApiAccessObject.ResourceAccess += New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList $permission.Id,"Scope"
+	$permission2 = $AzureGraphApiPrincipal.Oauth2Permissions | Where-Object { $_.Value -eq "User.ReadWrite" }
+	$AzureGraphApiAccessObject.ResourceAccess += New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList $permission2.Id,"Scope"
+	#$permission = $AzureGraphApiPrincipal.Oauth2Permissions | Where-Object { $_.Value -eq "Group.ReadWrite.all" }
+	#$AzureGraphApiAccessObject.ResourceAccess += New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList $permission.Id,"Scope"
+	#$permission = $AzureGraphApiPrincipal.Oauth2Permissions | Where-Object { $_.Value -eq "Application.ReadWrite.OwnedBy" }
+	#$AzureGraphApiAccessObject.ResourceAccess += New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList $permission.Id,"Scope"
 
 	# Add the WVD API,Log Analytics API and Microsoft Graph API permissions to the ADApplication
 	Set-AzureADApplication -ObjectId $azAdApplication.ObjectId -RequiredResourceAccess $AzureAdResouceAcessObject,$AzureServMgmtApiResouceAcessObject,$AzureGraphApiAccessObject -ErrorAction Stop
