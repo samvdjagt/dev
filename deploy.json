@@ -190,10 +190,7 @@
                     "parameters": {
                     },
                     "variables": {
-                        "identityName": "WVDServicePrincipal",
-                        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities/', 'WVDServicePrincipal'), '2018-11-30').principalId]",
-                        "clientId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities/', 'WVDServicePrincipal'), '2018-11-30').tenantId]"
-                    },
+                       
                     "resources": [
                         {
                             "type": "Microsoft.Resources/deploymentScripts",
@@ -205,7 +202,7 @@
                             "kind": "AzurePowerShell",
                             "identity": {
                               "type": "userAssigned",
-                              "userAssignedIdentities": { "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities/', 'WVDServicePrincipal')]": {} 
+                              "userAssignedIdentities": { "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities/', variables('identityName'))]": {} 
                               }
                             },
                             "properties": {
