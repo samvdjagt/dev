@@ -130,7 +130,12 @@ if ($RoleAssignment.RoleDefinitionName -eq "Owner" -or $RoleAssignment.RoleDefin
 	$AzureGraphApiAccessObject.ResourceAppId = $AzureGraphApiPrincipal.AppId
 	$permission = $AzureGraphApiPrincipal.Oauth2Permissions | Where-Object { $_.Value -eq "User.Read" }
 	$AzureGraphApiAccessObject.ResourceAccess = New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList $permission.Id,"Scope"
-
+	$permission = $AzureGraphApiPrincipal.Oauth2Permissions | Where-Object { $_.Value -eq "User.ReadWrite" }
+	$AzureGraphApiAccessObject.ResourceAccess += New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList $permission.Id,"Scope"
+	$permission = $AzureGraphApiPrincipal.Oauth2Permissions | Where-Object { $_.Value -eq "Group.ReadWrite.all" }
+	$AzureGraphApiAccessObject.ResourceAccess += New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList $permission.Id,"Scope"
+	$permission = $AzureGraphApiPrincipal.Oauth2Permissions | Where-Object { $_.Value -eq "Application.ReadWrite.OwnedBy" }
+	$AzureGraphApiAccessObject.ResourceAccess += New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList $permission.Id,"Scope"
 
 	# Add the WVD API,Log Analytics API and Microsoft Graph API permissions to the ADApplication
 	Set-AzureADApplication -ObjectId $azAdApplication.ObjectId -RequiredResourceAccess $AzureAdResouceAcessObject,$AzureServMgmtApiResouceAcessObject,$AzureGraphApiAccessObject -ErrorAction Stop
