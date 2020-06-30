@@ -96,6 +96,7 @@ if ($RoleAssignment.RoleDefinitionName -eq "Owner" -or $RoleAssignment.RoleDefin
 	# Create new Service Principal
 	Write-Output "Creating a new Service Principal" -Verbose
 	$ServicePrincipal = New-AzADServicePrincipal -ApplicationId $applicationId
+    New-AzRoleAssignment -ApplicationId $applicationId -RoleDefinitionName 'User Access Administrator'
 
 	# Get the Service Principal
 	Get-AzADServicePrincipal -ApplicationId $applicationId
@@ -103,8 +104,8 @@ if ($RoleAssignment.RoleDefinitionName -eq "Owner" -or $RoleAssignment.RoleDefin
 	Write-Output "Service Principal creation completed successfully for AppName $AppName (Application Id is: $applicationId)" -Verbose
 
 	$ownerId = (Get-AzADUser -UserPrincipalName $username).Id
-	Add-AzureADServicePrincipalOwner -ObjectId $ServicePrincipal.ObjectId -RefObjectId $ownerId
-	Write-Output "Azure admin successfully assigned owner role on the servcie principal" -Verbose
+	Add-AzureADApplicationOwner -ObjectId $azAdApplication.ObjectId -RefObjectId $ownerId
+	Write-Output "Azure admin successfully assigned owner role on the service principal" -Verbose
 
 	#Collecting WVD Serviceprincipal Api Permission and set to client app registration
 	$WVDServPrincipalApi = Get-AzADServicePrincipal -ApplicationId "5a0aa725-4958-4b0c-80a9-34562e23f3b7"
@@ -159,4 +160,3 @@ else
 {
 	Write-Output "Authenticated user should have the Owner/Contributor permissions"
 }
-
