@@ -58,7 +58,7 @@ $token = $pat
 $url="https://dev.azure.com/{org name}/{project name}/_apis/serviceendpoint/endpoints?api-version=5.1-preview.2"
 
 $token = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$($token)"))
-
+$subscriptionName = (Get-AzContext).Subscription.Name
 $body = @"
 {
   "authorization": {
@@ -72,7 +72,7 @@ $body = @"
   },
   "data": {
     "subscriptionId": $subscriptionId,
-    "subscriptionName": $context.subscriptionName,
+    "subscriptionName": $subscriptionName,
     "environment": "AzureCloud",
     "scopeLevel": "Subscription"
   },
@@ -81,5 +81,7 @@ $body = @"
   "url": "https://management.azure.com/"
 }
 "@
+
+write-output $body 
 
 $response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Basic $token"} -Method Post -Body $Body -ContentType application/json
