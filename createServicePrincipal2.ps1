@@ -151,7 +151,9 @@ if ($RoleAssignment.RoleDefinitionName -eq "Owner" -or $RoleAssignment.RoleDefin
 	# Add the WVD API,Log Analytics API and Microsoft Graph API permissions to the ADApplication
 	Set-AzureADApplication -ObjectId $azAdApplication.ObjectId -RequiredResourceAccess $AzureAdResouceAcessObject,$AzureServMgmtApiResouceAcessObject,$AzureGraphApiAccessObject -ErrorAction Stop
     #Set-AzureADApplication -ObjectId $azAdApplication.ObjectId -Oauth2Permissions $AzureAdOauth2Object -Oauth2RequirePostResponse $false -Oauth2AllowImplicitFlow $true
+    
 	$global:servicePrincipalCredentials = New-Object System.Management.Automation.PSCredential ($applicationId, $secureClientSecret)
+	New-AzAutomationVariable -AutomationAccountName $AutomationAccountName -Name "Credentials" -Encrypted $False -Value $servicePrincipalCredentials -ResourceGroupName $ResourceGroupName
 	# Get the Client Id/Application Id and Client Secret
 	Write-Output "Credentials for the service principal are stored in the `$servicePrincipalCredentials object"
 }
