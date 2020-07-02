@@ -80,8 +80,7 @@ $body = @"
     "processTemplate": {
       "templateTypeId": "6b724908-ef14-45cf-84f8-768b5384da45"
     }
-  },
-  "state": "wellFormed"
+  }
 }
 "@
 write-output $body 
