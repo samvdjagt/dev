@@ -5,7 +5,8 @@ $fileURI = Get-AutomationVariable -Name 'fileURI'
 $AutomationAccountName = Get-AutomationVariable -Name 'AccountName'
 $AppName = Get-AutomationVariable -Name 'AppName'
 $principalId = Get-AutomationVariable -Name 'principalId'
-$principalKey = Get-AutomationVariable -Name 'secret'
+$orgName = Get-AutomationVariable -Name 'orgName'
+$projectName = Get-AutomationVariable -Name 'projectName'
 
 
 $FileNames = "msft-wvd-saas-api.zip,msft-wvd-saas-web.zip,AzureModules.zip"
@@ -64,7 +65,7 @@ $headers = @{    Authorization="Bearer $pat"}
 
 $token = $pat
 
-$url="https://dev.azure.com/{org name}/{project name}/_apis/serviceendpoint/endpoints?api-version=5.1-preview.2"
+$url= $("https://dev.azure.com/" + $orgName} + "/" + $projectName + "/_apis/serviceendpoint/endpoints?api-version=5.1-preview.2")
 $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($PSCredentials.Password)
 $key = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
 
