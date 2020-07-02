@@ -85,7 +85,7 @@ $body = @"
   },
   "data": {
     "subscriptionId": $subscriptionId,
-    "subscriptionName": $subscriptionName,
+    "subscriptionName": "Microsoft Azure",
     "environment": "AzureCloud",
     "scopeLevel": "Subscription"
   },
