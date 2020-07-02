@@ -26,12 +26,21 @@ Import-Module AzureAD -Global
 Set-ExecutionPolicy -ExecutionPolicy Undefined -Scope Process -Force -Confirm:$false
 Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope LocalMachine -Force -Confirm:$false
 Get-ExecutionPolicy -List
+
 #The name of the Automation Credential Asset this runbook will use to authenticate to Azure.
-$CredentialAssetName = 'ManagementUXDeploy'
+$CredentialAssetName = 'ServicePrincipalCred'
 
 #Authenticate Azure
 #Get the credential with the above name from the Automation Asset store
-$AzCredentials = Get-AutomationPSCredential -Name $CredentialAssetName
+$PSCredentials = Get-AutomationPSCredential -Name $CredentialAssetName
+
+
+#The name of the Automation Credential Asset this runbook will use to authenticate to Azure.
+$CredentialAssetName2 = 'ManagementUXDeploy'
+
+#Authenticate Azure
+#Get the credential with the above name from the Automation Asset store
+$AzCredentials = Get-AutomationPSCredential -Name $CredentialAssetName2
 $AzCredentials.password.MakeReadOnly()
 $username = $AzCredentials.username
 Connect-AzAccount -Environment 'AzureCloud' -Credential $AzCredentials
@@ -56,7 +65,7 @@ $headers = @{    Authorization="Bearer $pat"}
 $token = $pat
 
 $url="https://dev.azure.com/{org name}/{project name}/_apis/serviceendpoint/endpoints?api-version=5.1-preview.2"
-
+$key = Get-PlainText $PSCredentials.password
 $token = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$($token)"))
 $subscriptionName = (Get-AzContext).Subscription.Name
 $body = @"
@@ -66,7 +75,7 @@ $body = @"
       "tenantid": $tenant,
       "serviceprincipalid": $principalId,
       "authenticationType": "spnKey",
-      "serviceprincipalkey": $principalKey
+      "serviceprincipalkey": $key
     },
     "scheme": "ServicePrincipal"
   },
