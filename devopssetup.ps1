@@ -65,7 +65,10 @@ $headers = @{    Authorization="Bearer $pat"}
 $token = $pat
 
 $url="https://dev.azure.com/{org name}/{project name}/_apis/serviceendpoint/endpoints?api-version=5.1-preview.2"
-$key = Get-PlainText $PSCredentials.password
+$BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($PSCredentials.Password)
+$key = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
+
+
 $token = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$($token)"))
 $subscriptionName = (Get-AzContext).Subscription.Name
 $body = @"
