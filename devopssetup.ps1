@@ -65,6 +65,29 @@ $headers = @{    Authorization="Bearer $pat"}
 
 $token = $pat
 
+$url= $("https://dev.azure.com/" + $orgName + "/_apis/projects?api-version=5.1")
+write-output $url
+
+$body = @"
+{
+  "name": "$($projectName)",
+  "description": "WVD Quickstart",
+  "capabilities": {
+    "versioncontrol": {
+      "sourceControlType": "Git"
+    },
+    "processTemplate": {
+      "templateTypeId": "6b724908-ef14-45cf-84f8-768b5384da45"
+    }
+  }
+}
+"@
+write-output $body 
+
+$response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Basic $token"} -Method Post -Body $Body -ContentType application/json
+write-output $response
+$id = $response.id
+
 $url= $("https://dev.azure.com/" + $orgName + "/" + $projectName + "/_apis/serviceendpoint/endpoints?api-version=5.1-preview.2")
 write-output $url
 $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($PSCredentials.Password)
@@ -108,7 +131,7 @@ $body = @"
 {
   "name": "$($repoName)",
   "project": {
-    "name": "$($projectName)"
+    "id": "$($id)"
   }
 }
 "@
