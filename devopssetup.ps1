@@ -66,6 +66,7 @@ $headers = @{    Authorization="Bearer $pat"}
 $token = $pat
 
 $url= $("https://dev.azure.com/" + $orgName + "/" + $projectName + "/_apis/serviceendpoint/endpoints?api-version=5.1-preview.2")
+write-output $url
 $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($PSCredentials.Password)
 $key = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
 
@@ -94,7 +95,41 @@ $body = @"
   "url": "https://management.azure.com/"
 }
 "@
-
 write-output $body 
 
 $response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Basic $token"} -Method Post -Body $Body -ContentType application/json
+write-output $response
+
+$url= $("https://dev.azure.com/" + $orgName + "/_apis/git/repositories?api-version=5.1")
+write-output $url
+$repoName = "Components"
+
+$body = @"
+{
+  "name": "$($repoName)",
+  "project": {
+    "name": "$($projectName)"
+  }
+}
+"@
+write-output $body 
+
+$response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Basic $token"} -Method Post -Body $Body -ContentType application/json
+write-output $response
+
+$url= $("https://dev.azure.com/" + $orgName + "/" + $projectName + "/_apis/git/repositories/" + $repoName + "/importRequests?api-version=5.1-preview.1")
+write-output $url 
+
+$body = @"
+{
+  "parameters": {
+    "gitSource": {
+      "url": "https://github.com/samvdjagt/dev.git"
+    }
+  }
+}
+"@
+write-output $body 
+
+$response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Basic $token"} -Method Post -Body $Body -ContentType application/json
+write-output $response
