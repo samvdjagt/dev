@@ -122,25 +122,25 @@ $response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Basic $token
 write-output $response
 
 # Get project ID to create repo. Not necessary if using default repo
-#$url = $("https://dev.azure.com/" + $orgName + "/_apis/projects/" + $projectName + "?api-version=5.1")
-#$response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Basic $token"} -Method Get
-#$projectId = $response.id
+$url = $("https://dev.azure.com/" + $orgName + "/_apis/projects/" + $projectName + "?api-version=5.1")
+$response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Basic $token"} -Method Get
+$projectId = $response.id
 
-#$url= $("https://dev.azure.com/" + $orgName + "/_apis/git/repositories?api-version=5.1")
-#write-output $url
+$url= $("https://dev.azure.com/" + $orgName + "/_apis/git/repositories?api-version=5.1")
+write-output $url
 
-#$body = @"
-#{
-#  "name": "$($projectName)",
-#  "project": {
-#    "id": "$($projectId)"
-#  }
-#}
-#"@
-#write-output $body 
+$body = @"
+{
+  "name": "$($projectName)",
+  "project": {
+    "id": "$($projectId)"
+  }
+}
+"@
+write-output $body 
 
-#$response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Basic $token"} -Method Post -Body $Body -ContentType application/json
-#write-output $response
+$response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Basic $token"} -Method Post -Body $Body -ContentType application/json
+write-output $response
 
 $url= $("https://dev.azure.com/" + $orgName + "/" + $projectName + "/_apis/git/repositories/" + $projectName + "/importRequests?api-version=5.1-preview.1")
 write-output $url 
