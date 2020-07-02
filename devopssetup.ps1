@@ -65,7 +65,7 @@ $headers = @{    Authorization="Bearer $pat"}
 
 $token = $pat
 
-$url= $("https://dev.azure.com/" + $orgName} + "/" + $projectName + "/_apis/serviceendpoint/endpoints?api-version=5.1-preview.2")
+$url= $("https://dev.azure.com/" + $orgName + "/" + $projectName + "/_apis/serviceendpoint/endpoints?api-version=5.1-preview.2")
 $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($PSCredentials.Password)
 $key = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
 
