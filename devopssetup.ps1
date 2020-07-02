@@ -88,7 +88,6 @@ write-output $body
 
 $response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Basic $token"} -Method Post -Body $Body -ContentType application/json
 write-output $response
-$id = $response.id
 
 $url= $("https://dev.azure.com/" + $orgName + "/" + $projectName + "/_apis/serviceendpoint/endpoints?api-version=5.1-preview.2")
 write-output $url
@@ -125,13 +124,16 @@ write-output $response
 
 $url= $("https://dev.azure.com/" + $orgName + "/_apis/git/repositories?api-version=5.1")
 write-output $url
-$repoName = "Components"
+
+$url = $("https://dev.azure.com/" + $orgName + "/_apis/projects/" + $projectName + "api-version=5.1")
+$response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Basic $token"} -Method Get
+$projectId = $response.id
 
 $body = @"
 {
-  "name": "$($repoName)",
+  "name": "$($projectName)",
   "project": {
-    "id": "$($id)"
+    "id": "$($projectId)"
   }
 }
 "@
@@ -140,7 +142,7 @@ write-output $body
 $response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Basic $token"} -Method Post -Body $Body -ContentType application/json
 write-output $response
 
-$url= $("https://dev.azure.com/" + $orgName + "/" + $projectName + "/_apis/git/repositories/" + $repoName + "/importRequests?api-version=5.1-preview.1")
+$url= $("https://dev.azure.com/" + $orgName + "/" + $projectName + "/_apis/git/repositories/" + $projectName + "/importRequests?api-version=5.1-preview.1")
 write-output $url 
 
 $body = @"
