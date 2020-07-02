@@ -157,7 +157,7 @@ if ($RoleAssignment.RoleDefinitionName -eq "Owner" -or $RoleAssignment.RoleDefin
 	New-AzAutomationVariable -AutomationAccountName $AutomationAccountName -Name "Secret" -Encrypted $False -Value $secureClientSecret -ResourceGroupName $ResourceGroupName
 	New-AzAutomationVariable -AutomationAccountName $AutomationAccountName -Name "ObjectId" -Encrypted $False -Value $azAdApplication.ObjectId -ResourceGroupName $ResourceGroupName
 	
-	New-AzAutomationCredential -AutomationAccountName $AutomationAccountName -Name "ServicePrincipalCred" -Value $servicePrincipalCredentials
+	New-AzAutomationCredential -AutomationAccountName $AutomationAccountName -Name "ServicePrincipalCred" -Value $servicePrincipalCredentials -ResourceGroupName $ResourceGroupName
 	
 	# Get the Client Id/Application Id and Client Secret
 	Write-Output "Credentials for the service principal are stored in the `$servicePrincipalCredentials object"
