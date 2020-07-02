@@ -76,16 +76,16 @@ $body = @"
 {
   "authorization": {
     "parameters": {
-      "tenantid": $tenant,
-      "serviceprincipalid": $principalId,
+      "tenantid": "$($tenant)",
+      "serviceprincipalid": "$($principalId)",
       "authenticationType": "spnKey",
-      "serviceprincipalkey": $key
+      "serviceprincipalkey": "$($key)"
     },
     "scheme": "ServicePrincipal"
   },
   "data": {
-    "subscriptionId": $subscriptionId,
-    "subscriptionName": "Microsoft Azure",
+    "subscriptionId": "$($SubscriptionId)",
+    "subscriptionName": "$($subscriptionName)",
     "environment": "AzureCloud",
     "scopeLevel": "Subscription"
   },
