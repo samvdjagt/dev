@@ -64,6 +64,7 @@ $pat = $profileClient.AcquireAccessToken($context.Subscription.TenantId).AccessT
 $headers = @{    Authorization="Bearer $pat"}
 
 $token = $pat
+$token = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$($token)"))
 
 $url= $("https://dev.azure.com/" + $orgName + "/_apis/projects?api-version=5.1")
 write-output $url
@@ -93,8 +94,6 @@ write-output $url
 $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($PSCredentials.Password)
 $key = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
 
-
-$token = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$($token)"))
 $subscriptionName = (Get-AzContext).Subscription.Name
 $body = @"
 {
