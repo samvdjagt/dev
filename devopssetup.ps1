@@ -158,3 +158,8 @@ write-output $body
 
 $response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Basic $token"} -Method Post -Body $Body -ContentType application/json
 write-output $response
+
+Invoke-WebRequest -Uri https://aka.ms/installazurecliwindows -OutFile .\AzureCLI.msi; Start-Process msiexec.exe -Wait -ArgumentList '/I AzureCLI.msi /quiet'; rm .\AzureCLI.msi
+
+az login -u $username -p $AzCredentials.password
+az pipelines create --name "WVD Quickstart" --organization $("https://dev.azure.com/" + $orgName + "/") --project $projectName --repository $projectName --repository-type "tfsgit" --yml-path "pipeline.yml"
