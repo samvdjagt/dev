@@ -2,7 +2,7 @@
     "WVDSoftware": [
         {
             "Url": "https://github.com/samvdjagt/dev/tree/master/modules.zip",
-            "DestinationFilePath": "C:\Pipeline\Modules\Global"
+            "DestinationFilePath": "C:\Pipeline\modules.zip"
         }
     ]
 }
