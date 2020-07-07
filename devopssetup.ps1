@@ -185,6 +185,7 @@ $content = $content.Replace("[wvdAssetsStorage]", $wvdAssetsStorage)
 $content = $content.Replace("[resourceGroupName]", $ResourceGroupName)
 $content = $content.Replace("[profilesStorageAccountName]", $profilesStorageAccountName)
 $content = $content.Replace('"', '')
+write-output $content
 
 $body = @"
 {
