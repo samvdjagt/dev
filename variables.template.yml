@@ -11,9 +11,6 @@ variables:
 - name: orchestrationFunctionsPath
   value: Implementation/2020-Spring/OrchestrationSources/SharedDeploymentFunctions
 
-- name: modulePath
-  value: Modules/$(moduleName)/$(moduleVersion)
-
 - name: vmImage
   value: "ubuntu-latest"
 
@@ -67,14 +64,14 @@ variables:
   value: true
 
 - name: parameterFolderPath
-  value: '$(orchestrationPath)/QS-WVD'
+  value: "Implementation/2020-Spring/Environments/pipeline-orchestrated/QS-WVD"
 
 ## ResourceGroup
 - name: wvd-mgmt-rg
   value: "QS-WVD-MGMT-RG"
 
 - name: rgFolderPath
-  value: '$(orchestrationPath)/QS-WVD' # Change this to RG name at the end
+  value: "Implementation/2020-Spring/Environments/pipeline-orchestrated/QS-WVD" # Change this to RG name at the end
 
 ### Key Vault ###
 - group: "WVDSecrets"
@@ -93,7 +90,7 @@ variables:
   value: "[wvdAssetsStorage]"
 
 - name: wvdUploadsPath
-  value: 'Implementation/2020-Spring/OrchestrationSources/Uploads'
+  value: "Implementation/2020-Spring/OrchestrationSources/Uploads"
 
 #endregion
 
@@ -119,7 +116,7 @@ variables:
 ## Hostpool
 #customImageReferenceId: '/subscriptions/67f81d7b-30fe-46c7-a789-56d6f2d5decc/resourceGroups/QS-WVD-IMG-RG/providers/Microsoft.Compute/galleries/sigto/images/W10-20H1-O365/versions/0.24282.50570'
 - name: customImageReferenceId
-  value: ''
+  value: ""
 
 - name: publisher
   value: "MicrosoftWindowsDesktop"
@@ -147,16 +144,16 @@ variables:
   value: false
   
 - name: LogoffDeadline
-  value: 'LogoffDeadline'         
+  value: "LogoffDeadline"         
   
 - name: LogOffMessageTitle
-  value: 'LogOffMessageTitle'
+  value: "LogOffMessageTitle"
   
 - name: LogOffMessageBody
-  value: 'LogOffMessageBody'              
+  value: "LogOffMessageBody"              
   
 - name: UtcOffset
-  value: 'UtcOffset'
+  value: "UtcOffset"
 
 #endregion
 
