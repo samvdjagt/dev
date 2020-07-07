@@ -160,5 +160,46 @@ write-output $body
 $response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Basic $token"} -Method Post -Body $Body -ContentType application/json
 write-output $response
 
+$url = $("https://dev.azure.com/" + $orgName + "/" + $projectName + "/_apis/git/repositories/" + $projectName + "/refs?filter=heads/master&api-version=5.1")
+write-output $url
+
+$response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Basic $token"} -Method Get
+write-output $response
+
+$url = $("https://dev.azure.com/" + $orgName + "/" + $projectName + "/_apis/git/repositories/" + $projectName + "/pushes?api-version=5.1")
+write-output $url
+
+$body = @"
+{
+  "refUpdates": [
+    {
+      "name": "refs/heads/master",
+      "oldObjectId": "$($response.value.objectId)"
+    }
+  ],
+  "commits": [
+    {
+      "comment": "Added task markdown file.",
+      "changes": [
+        {
+          "changeType": "add",
+          "item": {
+            "path": "/tasks.md"
+          },
+          "newContent": {
+            "content": "# Tasks\n\n* Item 1\n* Item 2",
+            "contentType": "rawtext"
+          }
+        }
+      ]
+    }
+  ]
+}
+"@
+write-output $body
+
+$response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Basic $token"} -Method Post -Body $Body -ContentType application/json
+write-output $response
+
 $spID = (Get-AzUserAssignedIdentity -ResourceGroupName $ResourceGroupName -Name WVDServicePrincipal).principalId
 New-AzRoleAssignment -ObjectId $spID -RoleDefinitionName "Contributor" -Scope $("/subscriptions/" + $subscriptionId)
