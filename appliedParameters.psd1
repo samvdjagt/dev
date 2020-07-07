@@ -2,9 +2,9 @@
     # General Information #
     # =================== #
     # Environment
-    subscriptionId                        = "67f81d7b-30fe-46c7-a789-56d6f2d5decc"      # user input
-    tenantId                              = "5556c3af-0b8d-4d18-952d-2de9bdeeb7e1"      # from serviceprincipal
-    objectId                              = "5d926f43-d9fa-4be9-acb2-a077efb8e23c"      # from serviceprincipal
+    subscriptionId                        = ""      # user input
+    tenantId                              = ""      # from serviceprincipal
+    objectId                              = ""      # from serviceprincipal
     
     # Pipeline
     WVDDeploymentServicePrincipal         = "Attempt"              # default
