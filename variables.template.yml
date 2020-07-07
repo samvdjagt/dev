@@ -64,14 +64,14 @@ variables:
   value: true
 
 - name: parameterFolderPath
-  value: "Implementation/2020-Spring/Environments/pipeline-orchestrated/QS-WVD"
+  value: "$(orchestrationPath)/QS-WVD"
 
 ## ResourceGroup
 - name: wvd-mgmt-rg
   value: "QS-WVD-MGMT-RG"
 
 - name: rgFolderPath
-  value: "Implementation/2020-Spring/Environments/pipeline-orchestrated/QS-WVD" # Change this to RG name at the end
+  value: "$(orchestrationPath)/QS-WVD" # Change this to RG name at the end
 
 ### Key Vault ###
 - group: "WVDSecrets"
