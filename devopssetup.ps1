@@ -7,7 +7,12 @@ $AppName = Get-AutomationVariable -Name 'AppName'
 $principalId = Get-AutomationVariable -Name 'principalId'
 $orgName = Get-AutomationVariable -Name 'orgName'
 $projectName = Get-AutomationVariable -Name 'projectName'
-
+$location = Get-AutomationVariable -Name 'location'
+$adminUsername = Get-AutomationVariable -Name 'adminUsername'
+$domainName = Get-AutomationVariable -Name 'domainName'
+$keyvaultName = Get-AutomationVariable -Name 'keyvaultName'
+$wvdAssetsStorage = Get-AutomationVariable -Name 'assetsName'
+$profilesStorageAccountName = Get-AutomationVariable -Name 'profilesName'
 
 $FileNames = "msft-wvd-saas-api.zip,msft-wvd-saas-web.zip,AzureModules.zip"
 $SplitFilenames = $FileNames.split(",")
@@ -169,6 +174,18 @@ write-output $response
 $url = $("https://dev.azure.com/" + $orgName + "/" + $projectName + "/_apis/git/repositories/" + $projectName + "/pushes?api-version=5.1")
 write-output $url
 
+$downloadUrl = $fileUri + "/variables.template.yml"
+$content = (New-Object System.Net.WebClient).DownloadString($downloadUrl)
+
+$content = $content.Replace("[location]", $location)
+$content = $content.Replace("[adminUsername]", $adminUsername)
+$content = $content.Replace("[domainName]", $domainName)
+$content = $content.Replace("[keyVaultName]", $keyvaultName)
+$content = $content.Replace("[wvdAssetsStorage]", $wvdAssetsStorage)
+$content = $content.Replace("[resourceGroupName]", $ResourceGroupName)
+$content = $content.Replace("[profilesStorageAccountName]", $profilesStorageAccountName)
+$content = $content.Replace('"', '')
+
 $body = @"
 {
   "refUpdates": [
@@ -184,10 +201,10 @@ $body = @"
         {
           "changeType": "add",
           "item": {
-            "path": "/tasks.md"
+            "path": "/variables.yml"
           },
           "newContent": {
-            "content": "# Tasks\n\n* Item 1\n* Item 2",
+            "content": "$($content)",
             "contentType": "rawtext"
           }
         }
