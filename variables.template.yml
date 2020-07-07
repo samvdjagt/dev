@@ -17,17 +17,8 @@ variables:
 - name: vmImage
   value: "ubuntu-latest"
 
-- name: componentStorageContainerName
-  value: "[componentStorageContainerName]"
-
 - name: serviceConnection
   value: "WVDServiceConnection"
-  
-- name: componentStorageAccountSubscriptionId
-  value: "[subscriptionId]"
-
-- name: componentStorageAccountName
-  value: "[componentStorageAccountName]"
 
 - name: location
   value: "[location]"
