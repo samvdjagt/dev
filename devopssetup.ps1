@@ -22,6 +22,7 @@ Import-Module Az.Accounts -Global
 Import-Module Az.Resources -Global
 Import-Module Az.Websites -Global
 Import-Module Az.Automation -Global
+Import-Module Az.Managedserviceidentity -Global
 Import-Module AzureAD -Global
 
 Set-ExecutionPolicy -ExecutionPolicy Undefined -Scope Process -Force -Confirm:$false
