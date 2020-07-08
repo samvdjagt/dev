@@ -4,8 +4,6 @@ function Invoke-GeneralDeployment {
   param(
     [string] $resourcegroupName,
     [string] $location,
-    [string] $componentStorageAccountName,
-    [string] $componentStorageContainerName,
     [string] $moduleName,
     [string] $moduleVersion,
     [string] $parameterFilePath,
@@ -19,8 +17,6 @@ function Invoke-GeneralDeployment {
 
   process {
 
-    $storageAccount = Get-AzResource -Name $componentStorageAccountName -ResourceType 'Microsoft.Storage/storageAccounts'
-    $SASKey = (Get-AzStorageAccountKey -AccountName $storageAccount.Name -ResourceGroupName $storageAccount.ResourceGroupName)[0]
     $templateUri = 'https://raw.githubusercontent.com/samvdjagt/dev/master/Modules/ARM/{0}/deploy.json' -f $moduleName
 
     Write-Verbose "Parameters are" -Verbose
