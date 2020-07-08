@@ -253,7 +253,7 @@ $body = @"
             "path": "QS-WVD/static/appliedParameters.psd1"
           },
           "newContent": {
-            "content": "$($content)",
+            "content": "$($parameters)",
             "contentType": "rawtext"
           }
         }
