@@ -61,84 +61,10 @@ stages:
                   targetPath: '$(Pipeline.Workspace)'
                   artifact: 'parameters'
                   publishLocation: 'pipeline'
-  - deployment: Deploy_WVDKeyVault
-    dependsOn:
-    - Process_input_parameters
-    environment: SBX
-    condition:
-      and (
-          not(canceled()),
-          eq(variables['enableJobDeployWVDKeyVault'], true)
-      )
-    timeoutInMinutes: 120
-    pool:
-      vmImage: $(vmImage)
-    strategy:
-        runOnce:
-          deploy:
-            steps:
-              - checkout: self
-              - task: AzurePowerShell@4
-                displayName: 'Deploy module [KeyVault] in [$(wvd-mgmt-rg)] via [$(serviceConnection)]'
-                name: Deploy_KeyVault_Task
-                inputs:
-                  azureSubscription: $(serviceConnection)
-                  ScriptType: InlineScript
-                  inline: |
-                      Write-Verbose "Load function" -Verbose
-                      . '$(Build.Repository.LocalPath)/$(orchestrationFunctionsPath)/Invoke-GeneralDeployment.ps1'
-
-                      $parameterFilePath = '$(Pipeline.Workspace)/parameters/keyvault.parameters.json'
-                      $functionInput = @{
-                        resourcegroupName             = "$(wvd-mgmt-rg)"
-                        location                      = "$(location)"
-                        moduleName                    = "KeyVault"
-                        moduleVersion                 = "2020-06-02"
-                        parameterFilePath             = $parameterFilePath
-                      }
-
-                      Write-Verbose "Invoke task with" -Verbose
-                      $functionInput.Keys | ForEach-Object { Write-Verbose ("PARAMETER: `t'{0}' with value '{1}'" -f $_, $functionInput[$_]) -Verbose }
-
-                      Invoke-GeneralDeployment @functionInput -Verbose
-                  errorActionPreference: stop
-                  azurePowerShellVersion: LatestVersion
-                enabled: true
-              - task: AzurePowerShell@4
-                displayName: "Trigger module [KeyVault] post-deployment"
-                name: PostDeploy_KeyVault_Task
-                inputs:
-                  azureSubscription: $(serviceConnection)
-                  ScriptType: InlineScript
-                  inline: |
-                    Write-Verbose "Load function" -Verbose
-                    . '$(Build.Repository.LocalPath)/$(parameterFolderPath)/Scripts/Invoke-KeyVaultPostDeployment.ps1'
-
-                    $functionInput = @{
-                      orchestrationFunctionsPath   = Join-Path '$(Build.Repository.LocalPath)' '$(orchestrationFunctionsPath)'
-                      VaultName                    = "$(keyVaultName)"
-                      domainJoin_userName          = "$(domainJoinUserName)"
-                      domainJoin_pwd               = ConvertTo-SecureString "$(WVDJoinDomainUserPwd)" -AsPlainText -Force
-                    }
-
-                    if(-not ([string]::IsNullOrEmpty('$(localAdminPassword)'))) {
-                      $functionInput += @{
-                        localAdminPassword = ConvertTo-SecureString "$(localAdminPassword)" -AsPlainText -Force
-                      }
-                    }
-
-                    Write-Verbose "Invoke task with" -Verbose
-                    $functionInput.Keys | ForEach-Object { Write-Verbose ("PARAMETER: `t'{0}' with value '{1}'" -f $_, $functionInput[$_]) -Verbose }
-
-                    Invoke-KeyVaultPostDeployment @functionInput -Verbose
-                  errorActionPreference: stop
-                  azurePowerShellVersion: LatestVersion
-                enabled: false
 
   - deployment: Deploy_WVDAssetsStorageAccount
     dependsOn:
     - Process_input_parameters
-    - Deploy_WVDKeyVault
     environment: SBX
     condition:
       and (
@@ -209,7 +135,6 @@ stages:
 
   - deployment: Deploy_WVDProfilesStorageAccount01
     dependsOn:
-    - Deploy_WVDKeyVault
     - Deploy_WVDAssetsStorageAccount
     environment: SBX
     condition: and(succeeded(), true)
