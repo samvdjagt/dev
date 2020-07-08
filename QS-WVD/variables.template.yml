@@ -58,7 +58,7 @@ variables:
   value: true
 
 - name: enableJobDeployWVDKeyVault # To enable/disable job
-  value: true
+  value: false
 
 - name: enableJobDeployAssetsStorageAccount # To enable/disable job
   value: true
