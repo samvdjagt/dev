@@ -92,8 +92,6 @@ stages:
                       $functionInput = @{
                         resourcegroupName             = "$(wvd-mgmt-rg)"
                         location                      = "$(location)"
-                        componentStorageAccountName   = "$(componentStorageAccountName)"
-                        componentStorageContainerName = "$(componentStorageContainerName)"
                         moduleName                    = "KeyVault"
                         moduleVersion                 = "2020-06-02"
                         parameterFilePath             = $parameterFilePath
@@ -173,8 +171,6 @@ stages:
                     $functionInput = @{
                       resourcegroupName             = "$(wvd-mgmt-rg)"
                       location                      = "$(location)"
-                      componentStorageAccountName   = "$(componentStorageAccountName)"
-                      componentStorageContainerName = "$(componentStorageContainerName)"
                       moduleName                    = "StorageAccounts"
                       moduleVersion                 = "2020-06-02"
                       parameterFilePath             = $parameterFilePath
@@ -239,8 +235,6 @@ stages:
                     $functionInput = @{
                       resourcegroupName             = "$(wvd-mgmt-rg)"
                       location                      = "$(location)"
-                      componentStorageAccountName   = "$(componentStorageAccountName)"
-                      componentStorageContainerName = "$(componentStorageContainerName)"
                       moduleName                    = "StorageAccounts"
                       moduleVersion                 = "2020-06-02"
                       parameterFilePath             = $parameterFilePath
@@ -293,8 +287,6 @@ stages:
                     $functionInput = @{
                       resourcegroupName             = "$(wvd-hostpool01-rg)"
                       location                      = "$(location)"
-                      componentStorageAccountName   = "$(componentStorageAccountName)"
-                      componentStorageContainerName = "$(componentStorageContainerName)"
                       moduleName                    = "WvdHostPools"
                       moduleVersion                 = "0.0.1"
                       parameterFilePath             = $parameterFilePath
@@ -336,8 +328,6 @@ stages:
                     $functionInput = @{
                       resourcegroupName             = "$(wvd-hostpool01-rg)"
                       location                      = "$(location)"
-                      componentStorageAccountName   = "$(componentStorageAccountName)"
-                      componentStorageContainerName = "$(componentStorageContainerName)"
                       moduleName                    = "WvdApplicationGroups"
                       moduleVersion                 = "2020-06-02"
                       parameterFilePath             = $parameterFilePath
@@ -379,8 +369,6 @@ stages:
                     $functionInput = @{
                       resourcegroupName             = "$(wvd-hostpool01-rg)"
                       location                      = "$(location)"
-                      componentStorageAccountName   = "$(componentStorageAccountName)"
-                      componentStorageContainerName = "$(componentStorageContainerName)"
                       moduleName                    = "WvdApplicationGroups"
                       moduleVersion                 = "2020-06-02"
                       parameterFilePath             = $parameterFilePath
@@ -430,8 +418,6 @@ stages:
                     $functionInput = @{
                       resourcegroupName             = "$(wvd-hostpool01-rg)"
                       location                      = "$(location)"
-                      componentStorageAccountName   = "$(componentStorageAccountName)"
-                      componentStorageContainerName = "$(componentStorageContainerName)"
                       moduleName                    = "VirtualMachines"
                       moduleVersion                 = "2020-06-02"
                       parameterFilePath             = $parameterFilePath
@@ -519,8 +505,6 @@ stages:
                     $functionInput = @{
                       resourcegroupName             = "$(wvd-hostpool01-rg)"
                       location                      = "$(location)"
-                      componentStorageAccountName   = "$(componentStorageAccountName)"
-                      componentStorageContainerName = "$(componentStorageContainerName)"
                       moduleName                    = "WvdApplications"
                       moduleVersion                 = "2020-06-02"
                       parameterFilePath             = $parameterFilePath
@@ -561,8 +545,6 @@ stages:
                     $functionInput = @{
                       resourcegroupName             = "$(wvd-hostpool01-rg)"
                       location                      = "$(location)"
-                      componentStorageAccountName   = "$(componentStorageAccountName)"
-                      componentStorageContainerName = "$(componentStorageContainerName)"
                       moduleName                    = "WvdWorkspaces"
                       moduleVersion                 = "0.0.1"
                       parameterFilePath             = $parameterFilePath
