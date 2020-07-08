@@ -282,7 +282,7 @@ write-output $body
 $response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Basic $token"} -Method Post -Body $Body -ContentType application/json
 write-output $response
 
-Set-AzKeyVaultAccessPolicy -VaultName $keyvaultName -ObjectId $objectId -PermissionsToSecrets Get,Set,List,Delete,Recover,Backup,Restore
+Set-AzKeyVaultAccessPolicy -VaultName $keyvaultName -ServicePrincipalName $principalId -PermissionsToSecrets Get,Set,List,Delete,Recover,Backup,Restore
 
 $spID = (Get-AzUserAssignedIdentity -ResourceGroupName $ResourceGroupName -Name WVDServicePrincipal).principalId
 New-AzRoleAssignment -ObjectId $spID -RoleDefinitionName "Contributor" -Scope $("/subscriptions/" + $subscriptionId)
