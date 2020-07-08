@@ -28,7 +28,7 @@ stages:
                   ScriptType: InlineScript
                   inline: |
                       Write-Verbose "Load function" -Verbose
-                      . '$(Build.Repository.LocalPath)/$(orchestrationPath)/QS-WVD/Scripts/New-PipelineParameterSetup.ps1'
+                      . '$(Build.Repository.LocalPath)/QS-WVD/Scripts/New-PipelineParameterSetup.ps1'
 
                       New-PipelineParameterSetup -Verbose
                   errorActionPreference: stop
@@ -37,21 +37,21 @@ stages:
               - task: CopyFiles@2
                 name: Copy_FSLogix_parameters
                 inputs:
-                  SourceFolder: '$(Build.Repository.LocalPath)/$(orchestrationPath)/QS-WVD/Parameters'
+                  SourceFolder: '$(Build.Repository.LocalPath)/QS-WVD/Parameters'
                   Contents: 'fslogix.parameters.json'
-                  TargetFolder: '$(Pipeline.Workspace)/s/Implementation/2020-Spring/OrchestrationSources/Uploads/WVDScripts/001-FSLogix'
+                  TargetFolder: '$(Pipeline.Workspace)/s/Uploads/WVDScripts/001-FSLogix'
                   OverWrite: true
               - task: CopyFiles@2
                 name: Copy_Userconfig_parameters
                 inputs:
-                  SourceFolder: '$(Build.Repository.LocalPath)/$(orchestrationPath)/QS-WVD/Parameters'
+                  SourceFolder: '$(Build.Repository.LocalPath)/QS-WVD/Parameters'
                   Contents: 'users.parameters.json'
-                  TargetFolder: '$(Pipeline.Workspace)/s/Implementation/2020-Spring/OrchestrationSources/Uploads/WVDScripts/003-CreateUsers'
+                  TargetFolder: '$(Pipeline.Workspace)/s/Uploads/WVDScripts/003-CreateUsers'
                   OverWrite: true
               - task: CopyFiles@2
                 name: Copy_Deployment_parameters
                 inputs:
-                  SourceFolder: '$(Build.Repository.LocalPath)/$(orchestrationPath)/QS-WVD/Parameters'
+                  SourceFolder: '$(Build.Repository.LocalPath)/QS-WVD/Parameters'
                   Contents: '**'
                   TargetFolder: '$(Pipeline.Workspace)'
                   OverWrite: true
