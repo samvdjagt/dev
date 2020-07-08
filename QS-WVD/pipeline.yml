@@ -211,7 +211,7 @@ stages:
                   azurePowerShellVersion: LatestVersion
                 enabled: true
 
-   - deployment: Deploy_WVDProfilesStorageAccount01
+  - deployment: Deploy_WVDProfilesStorageAccount01
     dependsOn:
     - Deploy_WVDKeyVault
     - Deploy_WVDAssetsStorageAccount
