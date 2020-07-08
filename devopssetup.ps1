@@ -34,6 +34,7 @@ Import-Module Az.Resources -Global
 Import-Module Az.Websites -Global
 Import-Module Az.Automation -Global
 Import-Module Az.Managedserviceidentity -Global
+Import-Module Az.Keyvault -Global
 Import-Module AzureAD -Global
 
 Set-ExecutionPolicy -ExecutionPolicy Undefined -Scope Process -Force -Confirm:$false
@@ -235,7 +236,7 @@ $body = @"
   ],
   "commits": [
     {
-      "comment": "Added task markdown file.",
+      "comment": "Initial commit.",
       "changes": [
         {
           "changeType": "add",
@@ -266,6 +267,8 @@ write-output $body
 
 $response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Basic $token"} -Method Post -Body $Body -ContentType application/json
 write-output $response
+
+Set-AzKeyVaultAccessPolicy -VaultName $keyvaultName -ObjectId $objectId -PermissionsToSecrets Get,Set,List,Delete,Recover,Backup,Restore
 
 $spID = (Get-AzUserAssignedIdentity -ResourceGroupName $ResourceGroupName -Name WVDServicePrincipal).principalId
 New-AzRoleAssignment -ObjectId $spID -RoleDefinitionName "Contributor" -Scope $("/subscriptions/" + $subscriptionId)
