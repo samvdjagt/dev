@@ -15,7 +15,7 @@ variables:
   value: "ubuntu-latest"
 
 - name: serviceConnection
-  value: "[WVDDeploymentServicePrincipal]"
+  value: "WVDServiceConnection"
 
 - name: location
   value: "[location]"
@@ -68,13 +68,13 @@ variables:
 
 ## ResourceGroup
 - name: wvd-mgmt-rg
-  value: "[wvdMgmtResourceGroupName]"
+  value: "QS-WVD-MGMT-RG"
 
 - name: rgFolderPath
   value: 'QS-WVD' # Change this to RG name at the end
 
 ### Key Vault ###
-- group: "[ADWVDSecretsGroupName]"
+- group: "WVDSecrets"
 
 - name: domainJoinUserName
   value: "[adminUsername]"
@@ -122,32 +122,32 @@ variables:
   value: ''
 
 - name: publisher
-  value: "[publisher]"
+  value: "MicrosoftWindowsDesktop"
 
 - name: offer
-  value: "[offer]"
+  value: "office-365"
 
 - name: sku
-  value: "[sku]"
+  value: "20h1-evd-o365pp"
   
 - name: version
-  value: "[imageVersion]"
+  value: "latest"
 
 - name: HostPoolName
-  value: "[hostpoolName]"
+  value: "QS-WVD-HP"
   
 - name: profilesStorageAccountName
   value: "[profilesStorageAccountName]"
 
 - name: targetGroup
-  value: "[targetGroup]"
+  value: "WVDUsers"
 
 ## Image Lifecycle
 - name: DeleteVM
   value: false
   
 - name: WorkspaceName
-  value: "[workSpaceName]"
+  value: "QS-WVD-WS"
   
 - name: LogoffDeadline
   value: 'LogoffDeadline'         
@@ -170,6 +170,6 @@ variables:
 
 ## IdentityApproach (AD or AADDS)
 - name: identityApproach
-  value: "[identityApproach]"
+  value: "AD"
 
 #endregion
