@@ -13,6 +13,12 @@ $domainName = Get-AutomationVariable -Name 'domainName'
 $keyvaultName = Get-AutomationVariable -Name 'keyvaultName'
 $wvdAssetsStorage = Get-AutomationVariable -Name 'assetsName'
 $profilesStorageAccountName = Get-AutomationVariable -Name 'profilesName'
+$ObjectId = Get-AutomationVariable -Name 'ObjectId'
+$tenantAdminDomainJoinUPN = Get-AutomationVariable -Name 'tenantAdminDomainJoinUPN'
+$existingSubnetName = Get-AutomationVariable -Name 'existingSubnetName'
+$virtualNetworkResourceGroupName = Get-AutomationVariable -Name 'virtualNetworkResourceGroupName'
+$existingVnetName = Get-AutomationVariable -Name 'existingVnetName'
+$computerName = Get-AutomationVariable -Name 'computerName'
 
 $FileNames = "msft-wvd-saas-api.zip,msft-wvd-saas-web.zip,AzureModules.zip"
 $SplitFilenames = $FileNames.split(",")
@@ -178,7 +184,7 @@ write-output $response
 $url = $("https://dev.azure.com/" + $orgName + "/" + $projectName + "/_apis/git/repositories/" + $projectName + "/pushes?api-version=5.1")
 write-output $url
 
-$downloadUrl = $fileUri + "/variables.template.yml"
+$downloadUrl = $fileUri + "/QS-WVD/variables.template.yml"
 $content = (New-Object System.Net.WebClient).DownloadString($downloadUrl)
 
 $content = $content.Replace("[location]", $location)
@@ -190,6 +196,34 @@ $content = $content.Replace("[resourceGroupName]", $ResourceGroupName)
 $content = $content.Replace("[profilesStorageAccountName]", $profilesStorageAccountName)
 $content = $content.Replace('"', '')
 write-output $content
+
+$downloadUrl = $fileUri + "/QS-WVD/static/appliedParameters.template.psd1"
+$parameters = (New-Object System.Net.WebClient).DownloadString($downloadUrl)
+
+$split = $tenantAdminDomainJoinUPN.Split("@")
+$domainUsername = $split[0]
+$domainName = $split[1]
+
+# $parameters = $parameters.Replace("[principalIds]", $location)
+$parameters = $parameters.Replace("[existingSubnetName]", $location)
+$parameters = $parameters.Replace("[virtualNetworkResourceGroupName]", $location)
+$parameters = $parameters.Replace("[existingVnetName]", $location)
+$parameters = $parameters.Replace("[computerName]", $location)
+$parameters = $parameters.Replace("[existingDomainUsername]", $domainUsername)
+$parameters = $parameters.Replace("[existingDomainName]", $domainName)
+$parameters = $parameters.Replace("[tenantAdminDomainJoinUPN]", $tenantAdminDomainJoinUPN)
+$parameters = $parameters.Replace("[objectId]", $ObjectId)
+$parameters = $parameters.Replace("[tenantId]", $tenant)
+$parameters = $parameters.Replace("[subscriptionId]", $subscriptionId)
+$parameters = $parameters.Replace("[location]", $location)
+$parameters = $parameters.Replace("[adminUsername]", $adminUsername)
+$parameters = $parameters.Replace("[domainName]", $domainName)
+$parameters = $parameters.Replace("[keyVaultName]", $keyvaultName)
+$parameters = $parameters.Replace("[assetsName]", $wvdAssetsStorage)
+$parameters = $parameters.Replace("[profilesName]", $profilesStorageAccountName)
+$parameters = $parameters.Replace("[resourceGroupName]", $ResourceGroupName)
+$parameters = $parameters.Replace('"', "'")
+write-output $parameters
 
 $body = @"
 {
@@ -206,7 +240,17 @@ $body = @"
         {
           "changeType": "add",
           "item": {
-            "path": "/variables.yml"
+            "path": "QS-WVD/variables.yml"
+          },
+          "newContent": {
+            "content": "$($content)",
+            "contentType": "rawtext"
+          }
+        },
+	{
+	  "changeType": "add",
+          "item": {
+            "path": "QS-WVD/static/appliedParameters.psd1"
           },
           "newContent": {
             "content": "$($content)",
