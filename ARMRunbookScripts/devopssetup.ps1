@@ -46,8 +46,9 @@ $CredentialAssetName = 'ServicePrincipalCred'
 
 #Authenticate Azure
 #Get the credential with the above name from the Automation Asset store
-$PSCredentials = Get-AutomationPSCredential -Name $CredentialAssetName
+$SPCredentials = Get-AutomationPSCredential -Name $CredentialAssetName
 
+$CredentialAssetName3 = Get-AutomationPSCredential -Name "domainJoinCredentials"
 
 #The name of the Automation Credential Asset this runbook will use to authenticate to Azure.
 $CredentialAssetName2 = 'ManagementUXDeploy'
@@ -105,7 +106,7 @@ start-sleep -Seconds 5
 
 $url= $("https://dev.azure.com/" + $orgName + "/" + $projectName + "/_apis/serviceendpoint/endpoints?api-version=5.1-preview.2")
 write-output $url
-$BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($PSCredentials.Password)
+$BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($SPCredentials.Password)
 $key = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
 
 $subscriptionName = (Get-AzContext).Subscription.Name
@@ -175,7 +176,18 @@ write-output $body
 $response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Basic $token"} -Method Post -Body $Body -ContentType application/json
 write-output $response
 
-start-sleep -Seconds 15
+$Session = new-PSSession -ComputerName $computerName -Credential $CredentialAssetName3
+Invoke-Command -Session $Session  { Import-Module activedirectory }
+Invoke-Command -Session $Session  { New-ADGroup -Name "WVDTestUsers" -SamAccountName WVDTestUsers -GroupCategory Security -GroupScope Global -DisplayName "WVD Test users" }
+Invoke-Command -Session $Session  { New-ADUser -Name "WVDTestUser" -Enabled $True -SamAccountName "WVDTestUser" -AccountPassword $CredentialAssetName3.password -UserPrincipalName "WVDTestUser@$domainName" }
+Invoke-Command -Session $Session  { Add-ADGroupMember -Identity "WVDTestUsers" -Members "WVDTestUser" }
+
+Invoke-Command -Session $Session  { Import-Module ADSync }
+Invoke-Command -Session $Session  { Start-ADSyncSyncCycle -PolicyType Delta -Verbose }
+
+start-sleep -Seconds 60
+
+$principalIds = (Invoke-Command -Session $Session  { (Get-ADGroup -Name "WVDTestUsers").objectId } )
 
 $url = $("https://dev.azure.com/" + $orgName + "/" + $projectName + "/_apis/git/repositories/" + $projectName + "/refs?filter=heads/master&api-version=5.1")
 write-output $url
@@ -207,10 +219,10 @@ $domainUsername = $split[0]
 $domainName = $split[1]
 
 # $parameters = $parameters.Replace("[principalIds]", $location)
-$parameters = $parameters.Replace("[existingSubnetName]", $location)
-$parameters = $parameters.Replace("[virtualNetworkResourceGroupName]", $location)
-$parameters = $parameters.Replace("[existingVnetName]", $location)
-$parameters = $parameters.Replace("[computerName]", $location)
+$parameters = $parameters.Replace("[existingSubnetName]", $existingSubnetName)
+$parameters = $parameters.Replace("[virtualNetworkResourceGroupName]", $virtualNetworkResourceGroupName)
+$parameters = $parameters.Replace("[existingVnetName]", $existingVnetName)
+$parameters = $parameters.Replace("[computerName]", $computerName)
 $parameters = $parameters.Replace("[existingDomainUsername]", $domainUsername)
 $parameters = $parameters.Replace("[existingDomainName]", $domainName)
 $parameters = $parameters.Replace("[tenantAdminDomainJoinUPN]", $tenantAdminDomainJoinUPN)
@@ -224,6 +236,7 @@ $parameters = $parameters.Replace("[keyVaultName]", $keyvaultName)
 $parameters = $parameters.Replace("[assetsName]", $wvdAssetsStorage)
 $parameters = $parameters.Replace("[profilesName]", $profilesStorageAccountName)
 $parameters = $parameters.Replace("[resourceGroupName]", $ResourceGroupName)
+$parameters = $parameters.Replace("[principalIds]", $principalIds)
 $parameters = $parameters.Replace('"', "'")
 write-output $parameters
 
@@ -295,3 +308,6 @@ write-output $body
 
 $response = Invoke-RestMethod -Method PATCH -Uri $url -Headers @{Authorization = "Basic $token"} -Body $body -ContentType "application/json"
 write-output $response
+
+
+

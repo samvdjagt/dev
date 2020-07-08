@@ -235,6 +235,20 @@
                         "password": "[parameters('azureAdminPassword')]"
                     }
                 },
+                                {
+                    "type": "credentials",
+                    "apiVersion": "2015-01-01-preview",
+                    "name": "domainJoinCredentials",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'))]"
+                    ],
+                    "tags": {},
+                    "properties": {
+                        "userName": "[parameters('tenantAdminDomainJoinUPN')]",
+                        "password": "[parameters('tenantAdminDomainJoinPassword')]"
+                    }
+                },
                 {
                     "type": "jobs",
                     "apiVersion": "2015-01-01-preview",
