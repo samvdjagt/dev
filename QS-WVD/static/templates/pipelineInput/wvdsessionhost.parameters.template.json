@@ -39,7 +39,7 @@
         "adminPassword": {
             "reference": {
                 "keyVault": {
-                    "id": "/subscriptions/[subscriptionId]/resourceGroups/[wvdMgmtResourceGroupName]/providers/Microsoft.KeyVault/vaults/[keyVaultName]"
+                    "id": "/subscriptions/[subscriptionId]/resourceGroups/[resourceGroupName]/providers/Microsoft.KeyVault/vaults/[keyVaultName]"
                 },
                 "secretName": "[AdminPasswordSecret]"
             }
@@ -59,7 +59,7 @@
         "domainJoinPassword": {
             "reference": {
                 "keyVault": {
-                    "id": "/subscriptions/[subscriptionId]/resourceGroups/[wvdMgmtResourceGroupName]/providers/Microsoft.KeyVault/vaults/[keyVaultName]"
+                    "id": "/subscriptions/[subscriptionId]/resourceGroups/[resourceGroupName]/providers/Microsoft.KeyVault/vaults/[keyVaultName]"
                 },
                 "secretName": "[AdminPasswordSecret]"
             }
