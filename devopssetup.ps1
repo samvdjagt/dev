@@ -135,6 +135,7 @@ write-output $body
 
 $response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Basic $token"} -Method Post -Body $Body -ContentType application/json
 write-output $response
+$endpointId = $response.id
 
 # Get project ID to create repo. Not necessary if using default repo
 $url = $("https://dev.azure.com/" + $orgName + "/_apis/projects/" + $projectName + "?api-version=5.1")
@@ -272,3 +273,25 @@ Set-AzKeyVaultAccessPolicy -VaultName $keyvaultName -ObjectId $objectId -Permiss
 
 $spID = (Get-AzUserAssignedIdentity -ResourceGroupName $ResourceGroupName -Name WVDServicePrincipal).principalId
 New-AzRoleAssignment -ObjectId $spID -RoleDefinitionName "Contributor" -Scope $("/subscriptions/" + $subscriptionId)
+
+$url = $("https://dev.azure.com/" + $orgName + "/" + $projectName + "/_apis/pipelines/pipelinePermissions/endpoint/" + $endpointId + "?api-version=5.1-preview.1")
+write-output $url
+
+$body = @"
+{
+    "allPipelines": {
+        "authorized": true,
+        "authorizedBy": null,
+        "authorizedOn": null
+    },
+    "pipelines": null,
+    "resource": {
+        "id": "$($endpointId)",
+        "type": "endpoint"
+    }
+}
+"@
+write-output $body
+
+$response = Invoke-RestMethod -Method PATCH -Uri $url -Headers @{Authorization = "Basic $token"} -Body $body -ContentType "application/json"
+write-output $response
