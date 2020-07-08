@@ -1,0 +1,379 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "utcValue": {
+            "type": "string",
+            "defaultValue": "[utcNow()]"
+        },
+        "existingVnetName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the virtual network the VMs will be connected to."
+            }
+        },
+        "existingSubnetName": {
+            "type": "string",
+            "metadata": {
+                "description": "The subnet the VMs will be placed in."
+            }
+        },
+        "virtualNetworkResourceGroupName": {
+            "type": "string",
+            "metadata": {
+                "description": "The resource group containing the existing virtual network."
+            }
+        },
+        "computerName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the VM with the domain controller."
+            }
+        },
+        "defaultDesktopUsers": {
+            "type": "string",
+            "metadata": {
+                "description": "Provide a comma separated list of users you would like to assign to access the desktop for this host pool. Example: user1@contoso.com,user2@contoso.com,user3@contoso.com "
+            },
+            "defaultValue": ""
+        },
+        "azureAdminUpn": {
+            "type": "string",
+            "metadata": {
+                "description": "The template will fail if you enter a user account that requires MFA or an application that is secured by a certificate. The UPN or ApplicationId must be an RDS Owner in the Windows Virtual Desktop Tenant to create the hostpool or an RDS Owner of the host pool to provision the host pool with additional VMs."
+            }
+        },
+        "azureAdminPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "The password that corresponds to the Azure admin UPN."
+            }
+        },
+        "tenantAdminDomainJoinUPN": {
+            "type": "string",
+            "metadata": {
+                "description": "The template will fail if you enter a user account that requires MFA or an application that is secured by a certificate. The UPN or ApplicationId must be an RDS Owner in the Windows Virtual Desktop Tenant to create the hostpool or an RDS Owner of the host pool to provision the host pool with additional VMs."
+            }
+        },
+        "tenantAdminDomainJoinPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "The password that corresponds to the tenant admin UPN."
+            }
+        }
+    },
+    "variables": {
+        "_artifactsLocation": "https://raw.githubusercontent.com/samvdjagt/dev/master/",
+        "AdminPasswordSecret": "adminPassword",
+        "existingDomainUsername": "[first(split(parameters('tenantAdminDomainJoinUPN'), '@'))]",
+        "existingDomainName": "[split(parameters('tenantAdminDomainJoinUPN'), '@')[1]]",
+        "identityName": "WVDServicePrincipal",
+        "location": "[resourcegroup().location]",
+        "rgName": "[resourcegroup().name]",
+        "keyvaultName": "[concat('keyvault', parameters('utcValue'))]",
+        "assetsName": "[concat('aset', toLower(parameters('utcValue')))]",
+        "profilesName": "[concat('prof', toLower(parameters('utcValue')))]",
+        "autoAccountName": "[concat('auto', toLower(parameters('utcValue')))]",
+        "uniquestr": "[uniqueString(resourceGroup().id, deployment().name)]",
+        "runbookName": "[concat('wvdrunbook','-',variables('uniquestr'))]",
+        "credentialName": "ManagementUXDeploy",
+        "subnet-id": "[resourceId(parameters('virtualNetworkResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('existingVnetName'), parameters('existingSubnetName'))]",
+        "tenantId": "[subscription().tenantId]",
+        "uniqueBase": "[toLower(uniquestring(variables('identityName'), resourceGroup().id, parameters('utcValue'),variables('autoAccountName')))]",
+        "uniqueBase2": "[toLower(uniquestring(variables('identityName'), subscription().id, parameters('utcValue'),'devOpsSetup'))]",
+        "newGuid": "[guid(variables('uniqueBase'))]",
+        "newGuid2": "[guid(variables('uniqueBase2'))]",
+        "scriptUri": "[concat(variables('_artifactsLocation'),'createServicePrincipal2.ps1')]",
+        "scriptUri2": "[concat(variables('_artifactsLocation'),'devopssetup.ps1')]",
+        "devOpsName": "WVDQuickstart28",   
+        "devOpsProjectName": "WVDQuickstartProject28",
+        "automationVariables": [
+            {
+                "name": "subscriptionid",
+                "value": "[concat('\"',subscription().subscriptionId,'\"')]"
+            },
+            {
+                "name": "AppName",
+                "value": "[concat('\"',variables('identityName'),'\"')]"
+            },
+            {
+                "name": "ResourceGroupName",
+                "value": "[concat('\"',variables('rgName'),'\"')]"
+            },
+            {
+                "name": "fileURI",
+                "value": "[concat('\"',variables('_artifactsLocation'),'\"')]"
+            },
+            {
+                "name": "AccountName",
+                "value": "[concat('\"',variables('autoAccountName'),'\"')]"
+            },
+                        {
+                "name": "orgName",
+                "value": "[concat('\"',variables('devOpsName'),'\"')]"
+            },
+            {
+                "name": "projectName",
+                "value": "[concat('\"',variables('devOpsProjectName'),'\"')]"
+            },
+            {
+                "name": "location",
+                "value": "[concat('\"',variables('location'),'\"')]"
+            },
+            {
+                "name": "adminUsername",
+                "value": "[concat('\"',variables('existingDomainUsername'),'\"')]"
+            },
+                        {
+                "name": "domainName",
+                "value": "[concat('\"',variables('existingDomainName'),'\"')]"
+            },
+            {
+                "name": "keyvaultName",
+                "value": "[concat('\"',variables('keyvaultName'),'\"')]"
+            },
+            {
+                "name": "assetsName",
+                "value": "[concat('\"',variables('assetsName'),'\"')]"
+            },
+            {
+                "name": "profilesName",
+                "value": "[concat('\"',variables('profilesName'),'\"')]"
+            },
+            {
+                "name": "tenantAdminDomainJoinUPN",
+                "value": "[concat('\"',parameters('tenantAdminDomainJoinUPN'),'\"')]"
+            },
+            {
+                "name": "computerName",
+                "value": "[concat('\"',parameters('computerName'),'\"')]"
+            },
+            {
+                "name": "existingVnetName",
+                "value": "[concat('\"',parameters('existingVnetName'),'\"')]"
+            },
+            {
+                "name": "existingSubnetName",
+                "value": "[concat('\"',parameters('existingSubnetName'),'\"')]"
+            },
+            {
+                "name": "virtualNetworkResourceGroupName",
+                "value": "[concat('\"',parameters('virtualNetworkResourceGroupName'),'\"')]"
+            }
+        ]   
+    },
+    "functions": [
+    ],
+    "resources": [
+        {
+            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+            "name": "[variables('identityName')]",
+            "apiVersion": "2018-11-30",
+            "location": "[variables('location')]",
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.Automation/automationAccounts/variables",
+            "apiVersion": "2015-10-31",
+            "name": "[concat(variables('autoAccountName'), '/', variables('automationVariables')[copyIndex()].name)]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', variables('autoAccountName'))]"
+            ],
+            "tags": {},
+            "properties": {
+                "value": "[variables('automationVariables')[copyIndex()].value]"
+            },
+            "copy": {
+                "name": "variableLoop",
+                "count": "[length(variables('automationVariables'))]"
+            }
+        },
+        {
+            "type": "Microsoft.Automation/automationAccounts",
+            "apiVersion": "2015-01-01-preview",
+            "name": "[variables('autoAccountName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+            ],
+            "tags": {},
+            "properties": {
+                "sku": {
+                    "name": "Free"
+                }
+            },
+            "resources": [
+                {
+                    "type": "runbooks",
+                    "apiVersion": "2015-01-01-preview",
+                    "name": "[variables('runbookName')]",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'))]"
+                    ],
+                    "tags": {},
+                    "properties": {
+                        "runbookType": "PowerShell",
+                        "logProgress": false,
+                        "logVerbose": false,
+                        "publishContentLink": {
+                            "uri": "[variables('scriptUri')]",
+                            "version": "1.0.0.0"
+                        }
+                    }
+                },
+                {
+                    "type": "credentials",
+                    "apiVersion": "2015-01-01-preview",
+                    "name": "[variables('credentialName')]",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'))]"
+                    ],
+                    "tags": {},
+                    "properties": {
+                        "userName": "[parameters('azureAdminUpn')]",
+                        "password": "[parameters('azureAdminPassword')]"
+                    }
+                },
+                {
+                    "type": "jobs",
+                    "apiVersion": "2015-01-01-preview",
+                    "name": "[variables('newGuid')]",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'))]",
+                        "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'), '/runbooks/',variables('runbookName'))]"
+                    ],
+                    "tags": {
+                        "key": "value"
+                    },
+                    "properties": {
+                        "runbook": {
+                            "name": "[variables('runbookName')]"
+                        }
+                    }
+                },
+                {
+                    "type": "runbooks",
+                    "apiVersion": "2015-01-01-preview",
+                    "name": "[concat(variables('runbookName'), '2')]",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'))]",
+                        "[concat('microsoft.visualstudio/account/', variables('devOpsName'))]"
+                    ],
+                    "tags": {},
+                    "properties": {
+                        "runbookType": "PowerShell",
+                        "logProgress": false,
+                        "logVerbose": false,
+                        "publishContentLink": {
+                            "uri": "[variables('scriptUri2')]",
+                            "version": "1.0.0.0"
+                        }
+                    }
+                },
+                                {
+                    "type": "jobs",
+                    "apiVersion": "2015-01-01-preview",
+                    "name": "[variables('newGuid2')]",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'))]",
+                        "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'), '/jobs/',variables('newGuid'))]",
+                        "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'), '/runbooks/',variables('runbookName'), '2')]",
+                        "[concat('microsoft.visualstudio/account/', variables('devOpsName'))]"
+                    ],
+                    "tags": {
+                        "key": "value"
+                    },
+                    "properties": {
+                        "runbook": {
+                            "name": "[concat(variables('runbookName'), '2')]"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults",
+            "apiVersion": "2019-09-01",
+            "name": "[variables('keyvaultName')]",
+            "location": "[variables('location')]",
+            "properties": {
+                "enabledForDeployment": true,
+                "enabledForTemplateDeployment": true,
+                "enabledForDiskEncryption": true,
+                "enableSoftDelete": true,
+                "lockForDeletion": false,
+                "tenantId": "[variables('tenantId')]",
+                "accessPolicies": [
+                ],
+                "sku": {
+                    "name": "Standard",
+                    "family": "A"
+                },
+                "secretsObject": {
+                    "value": {
+                        "secrets": []
+                    }
+                }
+            },
+            "dependsOn": [
+               
+            ],
+            "resources": [
+            ]
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults/secrets",
+            "apiVersion": "2015-06-01",
+            "name": "[concat(variables('keyvaultName'), '/', variables('AdminPasswordSecret'))]",
+            "properties": {
+                "name": "[variables('AdminPasswordSecret')]",
+                "value": "[parameters('tenantAdminDomainJoinPassword')]"
+            },
+            "dependsOn": [
+                "[concat('Microsoft.KeyVault/vaults/', variables('keyvaultName'))]"
+            ]
+        },
+        {
+            "name": "[variables('devOpsName')]",
+            "type": "microsoft.visualstudio/account",
+            "location": "centralus",
+            "apiVersion": "2014-04-01-preview",
+            "properties": {
+              "operationType": "Create",
+              "accountName": "[variables('devOpsName')]"
+            },
+            "resources": []
+        },
+        {
+            "type": "Microsoft.Resources/deploymentScripts",
+            "apiVersion": "2019-10-01-preview",
+            "name": "createDevopsPipeline",
+            "location": "[variables('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'), '/jobs/',variables('newGuid2'))]"
+            ],
+            "kind": "AzureCLI",
+            "identity": {
+                "type": "userAssigned",
+                "userAssignedIdentities": {
+                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities/', variables('identityName'))]": {}
+                }
+            },
+            "properties": {
+                "forceUpdateTag": 1,
+                "azCliVersion": "2.0.80",
+                "arguments": "[concat(variables('devOpsName'), ' ', variables('devOpsProjectName'), ' ', parameters('azureAdminUpn'), ' ', parameters('azureAdminPassword'))]",
+                "primaryScriptUri": "[concat(variables('_artifactsLocation'),'createDevopsPipeline.sh')]",
+                "timeout": "PT30M",
+                "cleanupPreference": "OnSuccess",
+                "retentionInterval": "P1D"
+            }
+        }
+    ],
+    "outputs": {
+    }
+}
