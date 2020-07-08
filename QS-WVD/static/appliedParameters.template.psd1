@@ -3,7 +3,7 @@
     # =================== #
     # Environment
     subscriptionId                        = "[subscriptionId]"      # user input
-    tenantId                              = "[tenantId]"      # from serviceprincipal
+    tenantId                              = "[tenantId]"      # AD tenant
     objectId                              = "[objectId]"      # from serviceprincipal
     
     # Pipeline
