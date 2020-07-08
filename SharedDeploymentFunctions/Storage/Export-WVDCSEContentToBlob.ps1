@@ -72,8 +72,8 @@ function Export-WVDCSEContentToBlob {
 
     Write-Verbose "Building paths to the local folders to upload."
     Write-Verbose "Script Directory: '$PSScriptRoot'"
-    $sourcesPath = Split-Path (Split-Path (Split-Path (Split-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) -Parent) -Parent) -Parent) -Parent
-    $contentDirectory = Join-Path -Path $sourcesPath "parameters/s/Uploads"
+    $sourcesPath = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
+    $contentDirectory = Join-Path -Path $sourcesPath "Uploads"
     Write-Verbose "Content directory: '$contentDirectory'"
 
     foreach ($contentObject in $contentToUpload) {
