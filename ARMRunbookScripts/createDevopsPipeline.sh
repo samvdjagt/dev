@@ -1,3 +1,7 @@
+#  Create a new build pipeline in the newly created DevOps project, based on the YAML file that was pulled from the GitHub repository.
+#  After completion of this script, the pipeline will automatically start running.
+#
+#  Input parameters:
 #     [Required]  ${1}  <orgName>        
 #     [Required]  ${2}  <projectName>         
 #     [Required]  ${3}  <azureAdminUpn>             

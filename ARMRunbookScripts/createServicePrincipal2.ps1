@@ -1,17 +1,18 @@
-#Initializing variables
+#Initializing variables from automation account
 $SubscriptionId = Get-AutomationVariable -Name 'subscriptionid'
 $ResourceGroupName = Get-AutomationVariable -Name 'ResourceGroupName'
 $fileURI = Get-AutomationVariable -Name 'fileURI'
 $AutomationAccountName = Get-AutomationVariable -Name 'AccountName'
 $AppName = Get-AutomationVariable -Name 'AppName'
 
+# Download files required for this script from github ARMRunbookScripts/static folder
 $FileNames = "msft-wvd-saas-api.zip,msft-wvd-saas-web.zip,AzureModules.zip"
 $SplitFilenames = $FileNames.split(",")
 foreach($Filename in $SplitFilenames){
 Invoke-WebRequest -Uri "$fileURI/static/$Filename" -OutFile "C:\$Filename"
 }
 
-#New-Item -Path "C:\msft-wvd-saas-offering" -ItemType directory -Force -ErrorAction SilentlyContinue
+# Install required Az modules and AzureAD
 Expand-Archive "C:\AzureModules.zip" -DestinationPath 'C:\Modules\Global' -ErrorAction SilentlyContinue
 
 Import-Module Az.Accounts -Global
@@ -142,6 +143,8 @@ if ($RoleAssignment.RoleDefinitionName -eq "Owner" -or $RoleAssignment.RoleDefin
     #Set-AzureADApplication -ObjectId $azAdApplication.ObjectId -Oauth2Permissions $AzureAdOauth2Object -Oauth2RequirePostResponse $false -Oauth2AllowImplicitFlow $true
     
 	$global:servicePrincipalCredentials = New-Object System.Management.Automation.PSCredential ($applicationId, $secureClientSecret)
+
+	# Create new automation variables with the newly created service principal details in them for use in the devops setup script
 	New-AzAutomationVariable -AutomationAccountName $AutomationAccountName -Name "PrincipalId" -Encrypted $False -Value $applicationId -ResourceGroupName $ResourceGroupName
 	New-AzAutomationVariable -AutomationAccountName $AutomationAccountName -Name "Secret" -Encrypted $False -Value $secureClientSecret -ResourceGroupName $ResourceGroupName
 	New-AzAutomationVariable -AutomationAccountName $AutomationAccountName -Name "ObjectId" -Encrypted $False -Value $azAdApplication.ObjectId -ResourceGroupName $ResourceGroupName
@@ -150,6 +153,8 @@ if ($RoleAssignment.RoleDefinitionName -eq "Owner" -or $RoleAssignment.RoleDefin
 	
 	# Get the Client Id/Application Id and Client Secret
 	Write-Output "Credentials for the service principal are stored in the `$servicePrincipalCredentials object"
+
+	# Assign service principal contributor and user acess administrator roles on subscription level
 	New-AzRoleAssignment -RoleDefinitionName "Contributor" -ApplicationId $applicationId
 	New-AzRoleAssignment -RoleDefinitionName "User Access Administrator" -ApplicationId $applicationId
 }

@@ -1,4 +1,4 @@
-﻿    #Initializing variables
+﻿#Initializing variables from automation account
 $SubscriptionId = Get-AutomationVariable -Name 'subscriptionid'
 $ResourceGroupName = Get-AutomationVariable -Name 'ResourceGroupName'
 $fileURI = Get-AutomationVariable -Name 'fileURI'
@@ -20,6 +20,7 @@ $virtualNetworkResourceGroupName = Get-AutomationVariable -Name 'virtualNetworkR
 $existingVnetName = Get-AutomationVariable -Name 'existingVnetName'
 $computerName = Get-AutomationVariable -Name 'computerName'
 
+# Download files required for this script from github ARMRunbookScripts/static folder
 $FileNames = "msft-wvd-saas-api.zip,msft-wvd-saas-web.zip,AzureModules.zip"
 $SplitFilenames = $FileNames.split(",")
 foreach($Filename in $SplitFilenames){
@@ -29,6 +30,7 @@ Invoke-WebRequest -Uri "$fileURI/static/$Filename" -OutFile "C:\$Filename"
 #New-Item -Path "C:\msft-wvd-saas-offering" -ItemType directory -Force -ErrorAction SilentlyContinue
 Expand-Archive "C:\AzureModules.zip" -DestinationPath 'C:\Modules\Global' -ErrorAction SilentlyContinue
 
+# Install required Az modules and AzureAD
 Import-Module Az.Accounts -Global
 Import-Module Az.Resources -Global
 Import-Module Az.Websites -Global
@@ -70,7 +72,7 @@ if ($context -eq $null)
 	exit
 }
 
-    
+# Get token for web request authorization
 $tenant = (Get-AzTenant).TenantId
 $azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
 $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azureRmProfile)
@@ -80,6 +82,7 @@ $headers = @{    Authorization="Bearer $pat"}
 $token = $pat
 $token = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$($token)"))
 
+#Create devops project
 $url= $("https://dev.azure.com/" + $orgName + "/_apis/projects?api-version=5.1")
 write-output $url
 
@@ -102,8 +105,9 @@ write-output $body
 $response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Basic $token"} -Method Post -Body $Body -ContentType application/json
 write-output $response
 
-start-sleep -Seconds 5
+start-sleep -Seconds 5  # to make sure project creation completed - would sometimes fail next request without this. TODO: more robust solution here
 
+# Create the service connection between devops and Azure using the service principal created in the createServicePrincipal script
 $url= $("https://dev.azure.com/" + $orgName + "/" + $projectName + "/_apis/serviceendpoint/endpoints?api-version=5.1-preview.2")
 write-output $url
 $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($SPCredentials.Password)
@@ -136,13 +140,14 @@ write-output $body
 
 $response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Basic $token"} -Method Post -Body $Body -ContentType application/json
 write-output $response
-$endpointId = $response.id
+$endpointId = $response.id  # needed to set permissions later
 
 # Get project ID to create repo. Not necessary if using default repo
 $url = $("https://dev.azure.com/" + $orgName + "/_apis/projects/" + $projectName + "?api-version=5.1")
 $response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Basic $token"} -Method Get
 $projectId = $response.id
 
+# Create repo
 $url= $("https://dev.azure.com/" + $orgName + "/_apis/git/repositories?api-version=5.1")
 write-output $url
 
@@ -159,6 +164,7 @@ write-output $body
 $response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Basic $token"} -Method Post -Body $Body -ContentType application/json
 write-output $response
 
+# Clone public github repo with all the required files
 $url= $("https://dev.azure.com/" + $orgName + "/" + $projectName + "/_apis/git/repositories/" + $projectName + "/importRequests?api-version=5.1-preview.1")
 write-output $url 
 
@@ -176,6 +182,7 @@ write-output $body
 $response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Basic $token"} -Method Post -Body $Body -ContentType application/json
 write-output $response
 
+# Create test user for the new WVD environment
 $Session = new-PSSession -ComputerName $computerName -Credential $CredentialAssetName3
 Invoke-Command -Session $Session  { Import-Module activedirectory }
 Invoke-Command -Session $Session  { New-ADGroup -Name "WVDTestUsers" -SamAccountName WVDTestUsers -GroupCategory Security -GroupScope Global -DisplayName "WVD Test users" }
@@ -185,16 +192,18 @@ Invoke-Command -Session $Session  { Add-ADGroupMember -Identity "WVDTestUsers" -
 Invoke-Command -Session $Session  { Import-Module ADSync }
 Invoke-Command -Session $Session  { Start-ADSyncSyncCycle -PolicyType Delta -Verbose }
 
-start-sleep -Seconds 60
+start-sleep -Seconds 60  # to make sure user was created. TODO: more robus solution to achieve this
 
 $principalIds = (Invoke-Command -Session $Session  { (Get-ADGroup -Name "WVDTestUsers").objectId } )
 
+# Get ID of the commit we just pushed, needed for the next commit below
 $url = $("https://dev.azure.com/" + $orgName + "/" + $projectName + "/_apis/git/repositories/" + $projectName + "/refs?filter=heads/master&api-version=5.1")
 write-output $url
 
 $response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Basic $token"} -Method Get
 write-output $response
 
+# Parse user input into the template variables file and the deployment parameter file and commit them to the devops repo
 $url = $("https://dev.azure.com/" + $orgName + "/" + $projectName + "/_apis/git/repositories/" + $projectName + "/pushes?api-version=5.1")
 write-output $url
 
@@ -282,11 +291,10 @@ write-output $body
 $response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Basic $token"} -Method Post -Body $Body -ContentType application/json
 write-output $response
 
+# Give service principal access to the keyvault
 Set-AzKeyVaultAccessPolicy -VaultName $keyvaultName -ServicePrincipalName $principalId -PermissionsToSecrets Get,Set,List,Delete,Recover,Backup,Restore
 
-$spID = (Get-AzUserAssignedIdentity -ResourceGroupName $ResourceGroupName -Name WVDServicePrincipal).principalId
-New-AzRoleAssignment -ObjectId $spID -RoleDefinitionName "Contributor" -Scope $("/subscriptions/" + $subscriptionId)
-
+# Give pipeline permission to access the newly created service connection
 $url = $("https://dev.azure.com/" + $orgName + "/" + $projectName + "/_apis/pipelines/pipelinePermissions/endpoint/" + $endpointId + "?api-version=5.1-preview.1")
 write-output $url
 
