@@ -63,7 +63,7 @@
         }
     },
     "variables": {
-        "_artifactsLocation": "https://raw.githubusercontent.com/samvdjagt/dev/master/",
+        "_artifactsLocation": "https://raw.githubusercontent.com/samvdjagt/dev/master/ARMRunbookScripts",
         "AdminPasswordSecret": "adminPassword",
         "existingDomainUsername": "[first(split(parameters('tenantAdminDomainJoinUPN'), '@'))]",
         "existingDomainName": "[split(parameters('tenantAdminDomainJoinUPN'), '@')[1]]",

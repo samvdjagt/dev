@@ -8,7 +8,7 @@ $AppName = Get-AutomationVariable -Name 'AppName'
 $FileNames = "msft-wvd-saas-api.zip,msft-wvd-saas-web.zip,AzureModules.zip"
 $SplitFilenames = $FileNames.split(",")
 foreach($Filename in $SplitFilenames){
-Invoke-WebRequest -Uri $fileURI/$Filename -OutFile "C:\$Filename"
+Invoke-WebRequest -Uri "$fileURI/static/$Filename" -OutFile "C:\$Filename"
 }
 
 #New-Item -Path "C:\msft-wvd-saas-offering" -ItemType directory -Force -ErrorAction SilentlyContinue
