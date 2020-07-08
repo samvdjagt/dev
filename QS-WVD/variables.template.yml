@@ -146,9 +146,6 @@ variables:
 - name: DeleteVM
   value: false
   
-- name: WorkspaceName
-  value: "QS-WVD-WS"
-  
 - name: LogoffDeadline
   value: 'LogoffDeadline'         
   
