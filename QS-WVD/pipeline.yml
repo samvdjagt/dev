@@ -1,4 +1,4 @@
-name: WVD Managment deployment
+name: WVD Deployment
 
 variables:
 - template: './variables.yml'
