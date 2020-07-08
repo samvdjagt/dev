@@ -1,0 +1,25 @@
+{
+    "fslogix": [
+        {
+            "installFSLogix": true,
+            "configureFSLogix": true,
+            "profileContainerKeys": [
+                {
+                    "Name": "Enabled",
+                    "Type": "DWORD",
+                    "Value": "1"
+                },
+                {
+                    "Name": "VHDLocations",
+                    "Type": "MultiString",
+                    "Value": "\\\\profilesstorage06192020.file.core.windows.net\\wvdprofiles"
+                }
+            ],
+            "NTFSPermission": true,
+            "fileShareName": "wvdprofiles",
+            "fileShareStorageAccountName": "profilesstorage06192020",
+            "domain": "gt1027.onmicrosoft.com",
+            "targetGroup": "WVDUsers"
+        }
+    ]
+}

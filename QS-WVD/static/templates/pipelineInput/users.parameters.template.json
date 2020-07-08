@@ -1,0 +1,17 @@
+{
+    "userconfig": [
+        {
+            "createUser": true,
+            "createGroup": false,
+            "assignUsers": true,
+            "syncAD": true,
+            "adminUsername": "[adminUsername]",
+            "adminPassword": "Edno1Nula0!!",
+            "computerName": "[computerName]",
+            "domain": "[domainName]",
+            "targetGroup": "[targetGroup]",
+            "userName": "[newUserName]"
+
+        }
+    ]
+}

@@ -1,0 +1,178 @@
+variables: 
+
+#############
+## GENERAL ##
+#############
+#region general
+
+- name: orchestrationPath
+  value: Implementation/2020-Spring/Environments/pipeline-orchestrated
+
+- name: orchestrationFunctionsPath
+  value: Implementation/2020-Spring/OrchestrationSources/SharedDeploymentFunctions
+
+- name: modulePath
+  value: Modules/$(moduleName)/$(moduleVersion)
+
+- name: vmImage
+  value: "ubuntu-latest"
+
+- name: serviceConnection
+  value: "[WVDDeploymentServicePrincipal]"
+
+- name: location
+  value: "[location]"
+
+#endregion
+
+#######################
+## PIPELINE SPECIFIC ##
+#######################
+#region specific
+
+# Deployed Module Specs
+- name: resourceGroupModuleName
+  value: ResourceGroup
+- name: resourceGroupModuleVersion
+  value:  0.0.1
+
+- name: keyVaultModuleName
+  value: KeyVault
+- name: keyVaultModuleVersion
+  value:  0.0.1
+
+- name: storageAccountModuleName
+  value: StorageAccounts
+- name: storageAccountModuleVersion
+  value:  1.0.0  
+
+- name: automationAccountModuleName
+  value: AutomationAccounts
+- name: automationAccountModuleVersion
+  value:  0.0.3
+
+- name: rsvModuleName
+  value: RecoveryServicesVaults
+- name: rsvModuleVersion
+  value:  0.0.1  
+
+# Jobs
+- name: enableJobDeployResourceGroup # To enable/disable job
+  value: true
+
+- name: enableJobDeployWVDKeyVault # To enable/disable job
+  value: true
+
+- name: enableJobDeployAssetsStorageAccount # To enable/disable job
+  value: true
+
+- name: parameterFolderPath
+  value: '$(orchestrationPath)/QS-WVD'
+
+## ResourceGroup
+- name: wvd-mgmt-rg
+  value: "[wvdMgmtResourceGroupName]"
+
+- name: rgFolderPath
+  value: '$(orchestrationPath)/QS-WVD' # Change this to RG name at the end
+
+### Key Vault ###
+- group: "[ADWVDSecretsGroupName]"
+
+- name: domainJoinUserName
+  value: "[adminUsername]"
+
+- name: domain
+  value: "[domainName]"
+
+- name: keyVaultName
+  value: "[keyVaultName]"
+
+### Storage Account ###
+- name: wvdAssetsStorageAccount
+  value: "[wvdAssetsStorage]"
+
+- name: wvdUploadsPath
+  value: 'Implementation/2020-Spring/OrchestrationSources/Uploads'
+
+#endregion
+
+################################
+## HOSTPOOL PIPELINE SPECIFIC ##
+################################
+#region specific
+
+## Resource group
+- name: wvd-hostpool01-rg
+  value: "[resourceGroupName]"
+
+- name: hprgFolderPath
+  value: '$(orchestrationPath)/[resourceGroupName]' # Change this to RG name at the end
+
+## Jobs
+- name: enableApplicationJob
+  value: false  # To enable/disable remote apps job
+  
+- name: enableScaling
+  value: false        # To enable/disable Scaling Job
+
+- name: enableImageUpdate
+  value: false    # To enable/disable Image Lifecycle job
+
+## Hostpool
+#customImageReferenceId: '/subscriptions/67f81d7b-30fe-46c7-a789-56d6f2d5decc/resourceGroups/QS-WVD-IMG-RG/providers/Microsoft.Compute/galleries/sigto/images/W10-20H1-O365/versions/0.24282.50570'
+- name: customImageReferenceId
+  value: ''
+
+- name: publisher
+  value: "[publisher]"
+
+- name: offer
+  value: "[offer]"
+
+- name: sku
+  value: "[sku]"
+  
+- name: version
+  value: "[imageVersion]"
+
+- name: HostPoolName
+  value: "[hostpoolName]"
+  
+- name: profilesStorageAccountName
+  value: "[profilesStorageAccountName]"
+
+- name: targetGroup
+  value: "[targetGroup]"
+
+## Image Lifecycle
+- name: DeleteVM
+  value: false
+  
+- name: WorkspaceName
+  value: "[workSpaceName]"
+  
+- name: LogoffDeadline
+  value: 'LogoffDeadline'         
+  
+- name: LogOffMessageTitle
+  value: 'LogOffMessageTitle'
+  
+- name: LogOffMessageBody
+  value: 'LogOffMessageBody'              
+  
+- name: UtcOffset
+  value: 'UtcOffset'
+
+#endregion
+
+################################
+## PROFILES PIPELINE SPECIFIC ##
+################################
+#region specific
+
+## IdentityApproach (AD or AADDS)
+- name: identityApproach
+  value: "[identityApproach]"
+
+#endregion
