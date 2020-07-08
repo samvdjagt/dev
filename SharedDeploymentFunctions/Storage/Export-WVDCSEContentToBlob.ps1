@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
 Upload Scripts and Executable files needed to customize WVD VMs to the created Storage Accounts blob containers.
 
@@ -73,7 +73,7 @@ function Export-WVDCSEContentToBlob {
     Write-Verbose "Building paths to the local folders to upload."
     Write-Verbose "Script Directory: '$PSScriptRoot'"
     $sourcesPath = Split-Path (Split-Path (Split-Path (Split-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) -Parent) -Parent) -Parent) -Parent
-    $contentDirectory = Join-Path -Path $sourcesPath "parameters/s/Implementation/2020-Spring/OrchestrationSources/Uploads"
+    $contentDirectory = Join-Path -Path $sourcesPath "parameters/s/Uploads"
     Write-Verbose "Content directory: '$contentDirectory'"
 
     foreach ($contentObject in $contentToUpload) {
