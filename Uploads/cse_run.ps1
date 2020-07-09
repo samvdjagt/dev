@@ -132,6 +132,8 @@ catch {
     Write-Error "Configuration JSON content could not be converted to a PowerShell object" -ErrorAction 'Stop'
 }
 
+Import-Module activedirectory
+
 LogInfo("##################")
 LogInfo("## 1 - EVALUATE ##")
 LogInfo("##################")
