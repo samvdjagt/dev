@@ -178,7 +178,7 @@ foreach ($config in $UserConfig.userconfig) {
 
         Loginfo(New-ADUser `
         -SamAccountName $userName `
-        -UserPrincipalName $userName + "@" + $domainName `
+        -UserPrincipalName $($userName + "@" + $domainName) `
         -Name "$userName" `
         -GivenName $userName `
         -Surname $userName `
