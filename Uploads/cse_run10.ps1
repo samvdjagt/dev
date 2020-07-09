@@ -170,7 +170,7 @@ foreach ($config in $UserConfig.userconfig) {
         LogInfo("Trigger user creation")
 
         
-        $userName = $config.userName
+        $userName = "WVDUser002"
         $domainName = $config.domain
         $passWord = $config.password
 
@@ -196,7 +196,7 @@ foreach ($config in $UserConfig.userconfig) {
         LogInfo("###############################")
 
         LogInfo("Assigning users to group...")
-        LogInfo(Add-ADGroupMember -Identity $config.targetGroup -Members $config.userName)
+        LogInfo(Add-ADGroupMember -Identity $config.targetGroup -Members "WVDUser002")
         LogInfo("User assignment to group completed.")
     }
 
