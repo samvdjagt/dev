@@ -1,0 +1,17 @@
+{
+    "userconfig": [
+        {
+            "createUser": true,
+            "createGroup": false,
+            "assignUsers": true,
+            "syncAD": true,
+            "adminUsername": "ssa",
+            "adminPassword": "Edno1Nula0!!",
+            "computerName": "adVM",
+            "domain": "gt1027.onmicrosoft.com",
+            "targetGroup": "WVDUsers",
+            "userName": "WVDUser001"
+
+        }
+    ]
+}
