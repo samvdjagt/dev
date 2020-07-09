@@ -132,7 +132,7 @@ catch {
     Write-Error "Configuration JSON content could not be converted to a PowerShell object" -ErrorAction 'Stop'
 }
 
-Import-Module activedirectory
+LogInfo(Import-Module activedirectory)
 
 LogInfo("##################")
 LogInfo("## 1 - EVALUATE ##")
@@ -176,7 +176,7 @@ foreach ($config in $UserConfig.userconfig) {
 
         LogInfo("Create user...")
 
-        New-ADUser `
+        Loginfo(New-ADUser `
         -SamAccountName $userName `
         -UserPrincipalName $userName + "@" + $domainName `
         -Name "$userName" `
@@ -185,7 +185,7 @@ foreach ($config in $UserConfig.userconfig) {
         -Enabled $True `
         -ChangePasswordAtLogon $True `
         -DisplayName "$userName" `
-        -AccountPassword (convertto-securestring $passWord -AsPlainText -Force) -Verbose
+        -AccountPassword (convertto-securestring $passWord -AsPlainText -Force) -Verbose)
 
         LogInfo("Create user completed.")
     }
@@ -196,7 +196,7 @@ foreach ($config in $UserConfig.userconfig) {
         LogInfo("###############################")
 
         LogInfo("Assigning users to group...")
-        Add-ADGroupMember -Identity $config.targetGroup -Members $config.userName
+        LogInfo(Add-ADGroupMember -Identity $config.targetGroup -Members $config.userName)
         LogInfo("User assignment to group completed.")
     }
 
@@ -205,7 +205,7 @@ foreach ($config in $UserConfig.userconfig) {
         LogInfo("## 4 - Sync new users & group with AD Sync ##")
         LogInfo("#############################################")
 
-        Import-Module ADSync
-        Start-ADSyncSyncCycle -PolicyType Delta -Verbose
+        LogInfo(Import-Module ADSync)
+        LogInfo(Start-ADSyncSyncCycle -PolicyType Delta -Verbose)
     }
 }
