@@ -10,7 +10,7 @@
             "computerName": "adVM",
             "domain": "gt1027.onmicrosoft.com",
             "targetGroup": "WVDUsers",
-            "userName": "WVDUser001"
+            "userName": "WVDUser002"
 
         }
     ]
