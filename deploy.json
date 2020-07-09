@@ -83,8 +83,8 @@
         "uniqueBase2": "[toLower(uniquestring(variables('identityName'), subscription().id, parameters('utcValue'),'devOpsSetup'))]",
         "newGuid": "[guid(variables('uniqueBase'))]",
         "newGuid2": "[guid(variables('uniqueBase2'))]",
-        "scriptUri": "[concat(variables('_artifactsLocation'),'ARMRunbookScripts/createServicePrincipal2.ps1')]",
-        "scriptUri2": "[concat(variables('_artifactsLocation'),'ARMRunbookScripts/devopssetup.ps1')]",
+        "scriptUri": "[concat(variables('_artifactsLocation'),'/ARMRunbookScripts/createServicePrincipal2.ps1')]",
+        "scriptUri2": "[concat(variables('_artifactsLocation'),'/ARMRunbookScripts/devopssetup.ps1')]",
         "devOpsName": "WVDQuickstart28",   
         "devOpsProjectName": "WVDQuickstartProject28",
         "automationVariables": [

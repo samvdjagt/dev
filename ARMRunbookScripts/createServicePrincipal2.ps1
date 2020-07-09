@@ -9,7 +9,7 @@ $AppName = Get-AutomationVariable -Name 'AppName'
 $FileNames = "msft-wvd-saas-api.zip,msft-wvd-saas-web.zip,AzureModules.zip"
 $SplitFilenames = $FileNames.split(",")
 foreach($Filename in $SplitFilenames){
-Invoke-WebRequest -Uri "$fileURI/static/$Filename" -OutFile "C:\$Filename"
+Invoke-WebRequest -Uri "$fileURI/ARMRunbookScripts/static/$Filename" -OutFile "C:\$Filename"
 }
 
 # Install required Az modules and AzureAD
