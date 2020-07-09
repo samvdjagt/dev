@@ -124,8 +124,8 @@ LogInfo("###################")
 $PsParam = Get-ChildItem -path "_deploy" -Filter $ConfigurationFileName -Recurse | sort -Property FullName
 $ConfigurationFilePath=$PsParam.FullName
 #$ConfigurationFilePath= Join-Path $PSScriptRoot $ConfigurationFileName
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/samvdjagt/dev/master/Uploads/downloads.parameters.json" -OutFile "C:\downloads.parameters.json"
-$ConfigurationJson = Get-Content -Path "C:\downloads.parameters.json" -Raw -ErrorAction 'Stop'
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/samvdjagt/dev/master/Uploads/users.parameters.json" -OutFile "C:\users.parameters.json"
+$ConfigurationJson = Get-Content -Path "C:\users.parameters.json" -Raw -ErrorAction 'Stop'
 
 try { $UserConfig = $ConfigurationJson | ConvertFrom-Json -ErrorAction 'Stop' }
 catch {
