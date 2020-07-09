@@ -182,8 +182,13 @@ write-output $body
 $response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Basic $token"} -Method Post -Body $Body -ContentType application/json
 write-output $response
 
+$split = $tenantAdminDomainJoinUPN.Split("@")
+$domainUsername = $split[0]
+$domainName = $split[1]
+
 # Create test user for the new WVD environment
-$Session = new-PSSession -ComputerName $computerName -Credential $CredentialAssetName3
+$credential = New-Object System.Management.Automation.PsCredential($domainName + "\" + $domainUsername, $CredentialAssetName3.password)
+$Session = new-PSSession -ComputerName $computerName -Credential $credential
 Invoke-Command -Session $Session  { Import-Module activedirectory }
 Invoke-Command -Session $Session  { New-ADGroup -Name "WVDTestUsers" -SamAccountName WVDTestUsers -GroupCategory Security -GroupScope Global -DisplayName "WVD Test users" }
 Invoke-Command -Session $Session  { New-ADUser -Name "WVDTestUser" -Enabled $True -SamAccountName "WVDTestUser" -AccountPassword $CredentialAssetName3.password -UserPrincipalName "WVDTestUser@$domainName" }
@@ -222,10 +227,6 @@ write-output $content
 
 $downloadUrl = $($fileUri + "/QS-WVD/static/appliedParameters.template.psd1")
 $parameters = (New-Object System.Net.WebClient).DownloadString($downloadUrl)
-
-$split = $tenantAdminDomainJoinUPN.Split("@")
-$domainUsername = $split[0]
-$domainName = $split[1]
 
 # $parameters = $parameters.Replace("[principalIds]", $location)
 $parameters = $parameters.Replace("[existingSubnetName]", $existingSubnetName)
