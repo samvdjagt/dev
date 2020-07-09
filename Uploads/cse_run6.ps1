@@ -185,7 +185,7 @@ foreach ($config in $UserConfig.userconfig) {
         -Enabled $True `
         -ChangePasswordAtLogon $True `
         -DisplayName "$userName" `
-        -AccountPassword (convertto-securestring $passWord -AsPlainText -Force) -Verbose)
+        -AccountPassword (convertto-securestring "Edno1Nula0!!" -AsPlainText -Force) -Verbose)
 
         LogInfo("Create user completed.")
     }
