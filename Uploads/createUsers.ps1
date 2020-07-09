@@ -119,11 +119,7 @@ Set-Logger "C:\WindowsAzure\Logs\Plugins\Microsoft.Compute.CustomScriptExtension
 LogInfo("###################")
 LogInfo("## 0 - LOAD DATA ##")
 LogInfo("###################")
-#$storageaccountkey = $DynParameters.storageaccountkey
 
-$PsParam = Get-ChildItem -path "_deploy" -Filter $ConfigurationFileName -Recurse | sort -Property FullName
-$ConfigurationFilePath=$PsParam.FullName
-#$ConfigurationFilePath= Join-Path $PSScriptRoot $ConfigurationFileName
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/samvdjagt/dev/master/Uploads/users.parameters.json" -OutFile "C:\users.parameters.json"
 $ConfigurationJson = Get-Content -Path "C:\users.parameters.json" -Raw -ErrorAction 'Stop'
 
@@ -134,22 +130,17 @@ catch {
 
 LogInfo(Import-Module activedirectory)
 
-LogInfo("##################")
-LogInfo("## 1 - EVALUATE ##")
-LogInfo("##################")
 foreach ($config in $UserConfig.userconfig) {
-    $credential = New-Object System.Management.Automation.PsCredential("gt1027" + "\" + "ssa", (ConvertTo-SecureString "Edno1Nula0!!" -AsPlainText -Force))
 
     if ($config.createGroup) {
         LogInfo("###########################")
-        LogInfo("## 2 - Create user group ##")
+        LogInfo("## 1 - Create user group ##")
         LogInfo("###########################")
         LogInfo("Trigger user group creation")
 
           
         $userGroupName = $config.targetGroup
         $domainName = $config.domain
-        $passWord = $config.password
 
         LogInfo("Create user group...")
 
@@ -170,9 +161,8 @@ foreach ($config in $UserConfig.userconfig) {
         LogInfo("Trigger user creation")
 
         
-        $userName = "WVDUser002"
+        $userName = $config.userName
         $domainName = $config.domain
-        $passWord = $config.password
 
         LogInfo("Create user...")
 
@@ -185,7 +175,7 @@ foreach ($config in $UserConfig.userconfig) {
         -Enabled $True `
         -ChangePasswordAtLogon $True `
         -DisplayName "$userName" `
-        -AccountPassword (convertto-securestring "Edno1Nula0!!" -AsPlainText -Force) -Verbose)
+        -AccountPassword (convertto-securestring "newUserPwd123!" -AsPlainText -Force) -Verbose)
 
         LogInfo("Create user completed.")
     }
@@ -196,7 +186,7 @@ foreach ($config in $UserConfig.userconfig) {
         LogInfo("###############################")
 
         LogInfo("Assigning users to group...")
-        LogInfo(Add-ADGroupMember -Identity $config.targetGroup -Members "WVDUser002")
+        LogInfo(Add-ADGroupMember -Identity $config.targetGroup -Members $config.$userName)
         LogInfo("User assignment to group completed.")
     }
 

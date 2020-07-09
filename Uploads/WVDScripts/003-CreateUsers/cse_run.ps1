@@ -136,7 +136,7 @@ LogInfo("##################")
 LogInfo("## 1 - EVALUATE ##")
 LogInfo("##################")
 foreach ($config in $UserConfig.userconfig) {
-    $credential = New-Object System.Management.Automation.PsCredential("gt1027" + "\" + "ssa", (ConvertTo-SecureString "Edno1Nula0!!" -AsPlainText -Force))
+    $credential = New-Object System.Management.Automation.PsCredential("gt1027" + "\" + "ssa", (ConvertTo-SecureString "" -AsPlainText -Force))
     $Session = new-PSSession -ComputerName "adVm" -Credential $credential
 
     if ($config.createGroup) {
