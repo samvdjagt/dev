@@ -24,7 +24,7 @@ $computerName = Get-AutomationVariable -Name 'computerName'
 $FileNames = "msft-wvd-saas-api.zip,msft-wvd-saas-web.zip,AzureModules.zip"
 $SplitFilenames = $FileNames.split(",")
 foreach($Filename in $SplitFilenames){
-Invoke-WebRequest -Uri "$fileURI/static/$Filename" -OutFile "C:\$Filename"
+Invoke-WebRequest -Uri "$fileURI/ARMRunbookScripts/static/$Filename" -OutFile "C:\$Filename"
 }
 
 #New-Item -Path "C:\msft-wvd-saas-offering" -ItemType directory -Force -ErrorAction SilentlyContinue
@@ -207,7 +207,7 @@ write-output $response
 $url = $("https://dev.azure.com/" + $orgName + "/" + $projectName + "/_apis/git/repositories/" + $projectName + "/pushes?api-version=5.1")
 write-output $url
 
-$downloadUrl = (Split-Path $fileUri -Parent) + "/QS-WVD/variables.template.yml"
+$downloadUrl = $($fileUri + "/QS-WVD/variables.template.yml")
 $content = (New-Object System.Net.WebClient).DownloadString($downloadUrl)
 
 $content = $content.Replace("[location]", $location)
@@ -220,7 +220,7 @@ $content = $content.Replace("[profilesStorageAccountName]", $profilesStorageAcco
 $content = $content.Replace('"', '')
 write-output $content
 
-$downloadUrl = (Split-Path $fileUri -Parent) + "/QS-WVD/static/appliedParameters.template.psd1"
+$downloadUrl = $($fileUri + "/QS-WVD/static/appliedParameters.template.psd1")
 $parameters = (New-Object System.Net.WebClient).DownloadString($downloadUrl)
 
 $split = $tenantAdminDomainJoinUPN.Split("@")
