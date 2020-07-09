@@ -136,10 +136,8 @@ LogInfo("##################")
 LogInfo("## 1 - EVALUATE ##")
 LogInfo("##################")
 foreach ($config in $UserConfig.userconfig) {
-    $credential = New-Object System.Management.Automation.PsCredential("gt1027.onmicrosoft.com" + "\" + "ssa", (ConvertTo-SecureString "Edno1Nula0!!" -AsPlainText -Force))
-    Loginfo("Attempting to log in with $config.adminPassword " + "$config.domain" + "\" + "$config.adminUsername")
-    $Session = new-PSSession -ComputerName $env:computername -Credential $credential
-    Invoke-Command -Session $Session { $Session2 = new-PSSession -ComputerName "adVm" -Credential $credential }
+    $credential = New-Object System.Management.Automation.PsCredential("gt1027" + "\" + "ssa", (ConvertTo-SecureString "Edno1Nula0!!" -AsPlainText -Force))
+    $Session = new-PSSession -ComputerName "adVm" -Credential $credential }
 
     if ($config.createGroup) {
         LogInfo("###########################")
@@ -154,12 +152,12 @@ foreach ($config in $UserConfig.userconfig) {
 
         LogInfo("Create user group...")
 
-        Invoke-Command -Session $Session { Invoke-Command -Session $Session2 { New-ADGroup `
+        Invoke-Command -Session $Session { New-ADGroup `
         -SamAccountName $userGroupName `
         -Name "$userGroupName" `
         -DisplayName "$userGroupName" `
         -GroupScope "Global" `
-        -GroupCategory "Security" -Verbose } }
+        -GroupCategory "Security" -Verbose }
 
         LogInfo("Create user group completed.")
     }
@@ -177,7 +175,7 @@ foreach ($config in $UserConfig.userconfig) {
 
         LogInfo("Create user...")
 
-        Invoke-Command -Session $Session { Invoke-Command -Session $Session2 { New-ADUser `
+        Invoke-Command -Session $Session { New-ADUser `
         -SamAccountName $userName `
         -UserPrincipalName $userName + "@" + $domainName `
         -Name "$userName" `
@@ -186,7 +184,7 @@ foreach ($config in $UserConfig.userconfig) {
         -Enabled $True `
         -ChangePasswordAtLogon $True `
         -DisplayName "$userName" `
-        -AccountPassword (convertto-securestring $passWord -AsPlainText -Force) -Verbose } }
+        -AccountPassword (convertto-securestring $passWord -AsPlainText -Force) -Verbose }
 
         LogInfo("Create user completed.")
     }
@@ -197,7 +195,7 @@ foreach ($config in $UserConfig.userconfig) {
         LogInfo("###############################")
 
         LogInfo("Assigning users to group...")
-        Invoke-Command -Session $Session { Invoke-Command -Session $Session2 { Add-ADGroupMember -Identity $config.targetGroup -Members $config.userName } }
+        Invoke-Command -Session $Session { Add-ADGroupMember -Identity $config.targetGroup -Members $config.userName } 
         LogInfo("User assignment to group completed.")
     }
 
@@ -206,7 +204,7 @@ foreach ($config in $UserConfig.userconfig) {
         LogInfo("## 4 - Sync new users & group with AD Sync ##")
         LogInfo("#############################################")
 
-        Invoke-Command -Session $Session { Invoke-Command -Session $Session2 { Import-Module ADSync } }
-        Invoke-Command -Session $Session { Invoke-Command -Session $Session2 { Start-ADSyncSyncCycle -PolicyType Delta -Verbose } }
+        Invoke-Command -Session $Session { Import-Module ADSync }
+        Invoke-Command -Session $Session { Start-ADSyncSyncCycle -PolicyType Delta -Verbose }
     }
 }
