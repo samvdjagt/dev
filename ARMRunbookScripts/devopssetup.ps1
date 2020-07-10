@@ -176,10 +176,12 @@ write-output $body
 $response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Basic $token"} -Method Post -Body $Body -ContentType application/json
 write-output $response
 
+start-sleep -Seconds 10
+
 $split = $tenantAdminDomainJoinUPN.Split("@")
 $domainUsername = $split[0]
 $domainName = $split[1]
-$principalIds = (Get-azureADGroup -Name $targetGroup).objectId
+$principalIds = (Get-AzureADGroup -SearchString $targetGroup).objectId
 Write-Output "Found user group $targetGroup with principal Id $principalIds"
 
 # Get ID of the commit we just pushed, needed for the next commit below
