@@ -6,11 +6,13 @@ param (
 
     [Parameter(Mandatory = $false)]
     [Hashtable] $DynParameters,
+
+    [Parameter(Mandatory = $true)]
+    [System.Management.Automation.PSCredential] $Credential,
     
     [Parameter(Mandatory = $false)]
     [ValidateNotNullOrEmpty()]
-    #[string] $ConfigurationFilePath = (Join-Path $PSScriptRoot "fslogix.parameters.json")
-    [string] $ConfigurationFileName = "fslogix.parameters.json"
+    [string] $ConfigurationFileName = "users.parameters.json"
 )
 
 #####################################
@@ -115,7 +117,7 @@ function Set-Logger {
 
 ## MAIN
 #Set-Logger "C:\WindowsAzure\CustomScriptExtension\Log" # inside "executionCustomScriptExtension_$date.log"
-Set-Logger "C:\WindowsAzure\Logs\Plugins\Microsoft.Compute.CustomScriptExtension\executionLog\FSLogix" # inside "executionCustomScriptExtension_$scriptName_$date.log"
+Set-Logger "C:\WindowsAzure\Logs\Plugins\Microsoft.Compute.CustomScriptExtension\executionLog\azfilesconfig" # inside "executionCustomScriptExtension_$scriptName_$date.log"
 
 LogInfo("###################")
 LogInfo("## 0 - LOAD DATA ##")
@@ -128,74 +130,57 @@ $ConfigurationFilePath=$PsParam.FullName
 
 $ConfigurationJson = Get-Content -Path $ConfigurationFilePath -Raw -ErrorAction 'Stop'
 
-try { $FSLogixConfig = $ConfigurationJson | ConvertFrom-Json -ErrorAction 'Stop' }
+try { $azfilesconfig = $ConfigurationJson | ConvertFrom-Json -ErrorAction 'Stop' }
 catch {
     Write-Error "Configuration JSON content could not be converted to a PowerShell object" -ErrorAction 'Stop'
 }
 
 LogInfo("##################")
-LogInfo("## 1 - EVALUATE ##")
+LogInfo("## 0 - EVALUATE ##")
 LogInfo("##################")
-foreach ($config in $FSLogixConfig.fslogix) {
+foreach ($config in $azfilesconfig.azfilesconfig) {
+    
+    if ($config.enableAzureFiles) {
+        LogInfo("############################")
+        LogInfo("## 1 - Enable Azure Files ##")
+        LogInfo("############################")
+        LogInfo("Trigger user group creation")
 
-    if ($config.installFSLogix) {
-        LogInfo("########################")
-        LogInfo("## 2 - INSTALL FLOGIX ##")
-        LogInfo("########################")
-        LogInfo("Trigger FSLogix")
-
-        # & "$PSScriptRoot\Install-FSLogix.ps1"
-        if ($PSCmdlet.ShouldProcess("FSLogix", "Install")) {
-            & "$PSScriptRoot\Install-FSLogix.ps1"
-            LogInfo("FSLogix installed")
-        }
-    }
-
-    if ($config.configureFSLogix) {
-        LogInfo("###########################")
-        LogInfo("## 3 - CONFIGURE FSLOGIX ##")
-        LogInfo("###########################")
-        foreach ($key in $config.profileContainerKeys) {
-            LogInfo($key.Name)
-            LogInfo($key.Type)
-            LogInfo($key.Value)
-        }
-
-        $($config.profileContainerKeys).GetType() | Format-Table
-        Write-Verbose "Before function count: $($testArr.Count)"
-
-        # & "$PSScriptRoot\Configure-FSLogix.ps1" $config.profileContainerKeys
-        if ($PSCmdlet.ShouldProcess("FSLogix", "Set")) {
-            & "$PSScriptRoot\Set-FSLogix.ps1" $config.profileContainerKeys
-            LogInfo("FSLogix configured")
-        }
-    }
-
-    if ($config.NTFSPermission) {
-        LogInfo("######################################################")
-        LogInfo("## 4 - Set NTFS Permission on the share for FSLogix ##")
-        LogInfo("######################################################")
-        LogInfo($config.fileShareName)
-        LogInfo($config.fileShareStorageAccountName)
-        LogInfo($config.domain)
-        LogInfo($config.targetGroup)
-
-        $fileShareUri = "\\{0}.file.core.windows.net\{1}" -f $config.fileShareStorageAccountName, $config.fileShareName
-        $storageAccountKey = ConvertTo-SecureString -String $DynParameters.storageaccountkey -AsPlainText -Force
+        LogInfo("Set execution policy...")
         
-        $fileShareInputObject = @{
-            storageAccountName = $config.fileShareStorageAccountName
-            fileShareUri       = $fileShareUri
-            storageAccountKey  = $storageAccountKey
-            domain             = $config.domain
-            targetGroup        = $config.targetGroup
-        }
-        $fileShareInputObject.Keys | ForEach-Object { LogInfo("Drive: Use param: '{0}' with value '{1}'" -f $_, $fileShareInputObject[$_]) }
+        #Change the execution policy to unblock importing AzFilesHybrid.psm1 module
+        Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser
 
-        # & "$PSScriptRoot\Set-NTFSPermissions.ps1" @fileShareInputObject
-        if ($PSCmdlet.ShouldProcess("NTFS Permissions on the share", "Set")) {
-            & "$PSScriptRoot\Set-NTFSPermissions.ps1" @fileShareInputObject
-            LogInfo("Permissions set")
-        }
+        # Navigate to where AzFilesHybrid is unzipped and stored and run to copy the files into your path
+        .\CopyToPSPath.ps1 
+
+        LogInfo("Import AzFilesHybrid module...")
+        Import-Module -Name AzFilesHybrid
+
+        LogInfo("Login with an Azure AD credential")
+        Connect-AzAccount -Credential $Credential
+
+        #Define parameters
+        $SubscriptionId = $config.SubscriptionId
+        $ResourceGroupName = $config.ResourceGroupName
+        $StorageAccountName = $config.StorageAccountName
+
+        LogInfo("Select the target subscription for the current session")
+        Select-AzSubscription -SubscriptionId $SubscriptionId 
+
+        # Register the target storage account with your active directory environment under the target OU (for example: specify the OU with Name as "UserAccounts" or DistinguishedName as "OU=UserAccounts,DC=CONTOSO,DC=COM"). 
+        # You can use to this PowerShell cmdlet: Get-ADOrganizationalUnit to find the Name and DistinguishedName of your target OU. If you are using the OU Name, specify it with -OrganizationalUnitName as shown below. If you are using the OU DistinguishedName, you can set it with -OrganizationalUnitDistinguishedName. You can choose to provide one of the two names to specify the target OU.
+        # You can choose to create the identity that represents the storage account as either a Service Logon Account or Computer Account (default parameter value), depends on the AD permission you have and preference. 
+        # Run Get-Help Join-AzStorageAccountForAuth for more details on this cmdlet.
+
+        LogInfo("Join-AzStorageAccountForAuth...")
+
+        Join-AzStorageAccountForAuth `
+                -ResourceGroupName $ResourceGroupName `
+                -StorageAccountName $StorageAccountName `
+                -DomainAccountType "<ComputerAccount|ServiceLogonAccount>" 
+    
+        LogInfo("Az files enabled!")
     }
+    
 }

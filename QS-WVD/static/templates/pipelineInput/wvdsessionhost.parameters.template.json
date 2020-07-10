@@ -118,11 +118,15 @@
                     "storageAccountId": "/subscriptions/[subscriptionId]/resourceGroups/[wvdMgmtResourceGroupName]/providers/Microsoft.Storage/storageAccounts/[wvdAssetsStorage]"
                 },
                 {
-                    "uri": "https://[wvdAssetsStorage].blob.core.windows.net/wvdscripts/001-FSLogix.zip",
+                    "uri": "https://[wvdAssetsStorage].blob.core.windows.net/wvdscripts/001-AzFiles.zip",
                     "storageAccountId": "/subscriptions/[subscriptionId]/resourceGroups/[wvdMgmtResourceGroupName]/providers/Microsoft.Storage/storageAccounts/[wvdAssetsStorage]"
                 },
                 {
-                    "uri": "https://[wvdAssetsStorage].blob.core.windows.net/wvdscripts/002-NotepadPP.zip",
+                    "uri": "https://[wvdAssetsStorage].blob.core.windows.net/wvdscripts/002-FSLogix.zip",
+                    "storageAccountId": "/subscriptions/[subscriptionId]/resourceGroups/[wvdMgmtResourceGroupName]/providers/Microsoft.Storage/storageAccounts/[wvdAssetsStorage]"
+                },
+                {
+                    "uri": "https://[wvdAssetsStorage].blob.core.windows.net/wvdscripts/003-NotepadPP.zip",
                     "storageAccountId": "/subscriptions/[subscriptionId]/resourceGroups/[wvdMgmtResourceGroupName]/providers/Microsoft.Storage/storageAccounts/[wvdAssetsStorage]"
                 }
             ]

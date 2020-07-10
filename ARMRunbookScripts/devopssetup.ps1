@@ -18,6 +18,7 @@ $virtualNetworkResourceGroupName = Get-AutomationVariable -Name 'virtualNetworkR
 $existingVnetName = Get-AutomationVariable -Name 'existingVnetName'
 $computerName = Get-AutomationVariable -Name 'computerName'
 $targetGroup = Get-AutomationVariable -Name 'targetGroup'
+$AutomationAccountName = Get-AutomationVariable -Name 'AccountName'
 
 # Download files required for this script from github ARMRunbookScripts/static folder
 $FileNames = "msft-wvd-saas-api.zip,msft-wvd-saas-web.zip,AzureModules.zip"
@@ -205,6 +206,7 @@ $content = $content.Replace("[keyVaultName]", $keyvaultName)
 $content = $content.Replace("[wvdAssetsStorage]", $wvdAssetsStorage)
 $content = $content.Replace("[resourceGroupName]", $ResourceGroupName)
 $content = $content.Replace("[profilesStorageAccountName]", $profilesStorageAccountName)
+$content = $content.Replace("[autoAccountName]", $AutomationAccountName)
 $content = $content.Replace('"', '')
 write-output $content
 

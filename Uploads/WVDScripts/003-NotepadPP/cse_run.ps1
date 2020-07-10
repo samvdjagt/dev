@@ -4,6 +4,9 @@ param (
     [Hashtable] $DynParameters,
 
     [Parameter(Mandatory = $false)]
+    [System.Management.Automation.PSCredential] $Credential,
+
+    [Parameter(Mandatory = $false)]
     [ValidateNotNullOrEmpty()]
     [string] $ExecutableName = "npp.7.8.7.Installer.exe",
 

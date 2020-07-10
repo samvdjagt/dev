@@ -17,6 +17,9 @@ variables:
 - name: serviceConnection
   value: "WVDServiceConnection"
 
+- name: automationAccountName
+  value: "[autoAccountName]"
+
 - name: location
   value: "[location]"
 

@@ -6,10 +6,14 @@ param (
 
     [Parameter(Mandatory = $false)]
     [Hashtable] $DynParameters,
+
+    [Parameter(Mandatory = $false)]
+    [System.Management.Automation.PSCredential] $Credential,
     
     [Parameter(Mandatory = $false)]
     [ValidateNotNullOrEmpty()]
-    [string] $ConfigurationFileName = "users.parameters.json"
+    #[string] $ConfigurationFilePath = (Join-Path $PSScriptRoot "fslogix.parameters.json")
+    [string] $ConfigurationFileName = "fslogix.parameters.json"
 )
 
 #####################################
@@ -114,7 +118,7 @@ function Set-Logger {
 
 ## MAIN
 #Set-Logger "C:\WindowsAzure\CustomScriptExtension\Log" # inside "executionCustomScriptExtension_$date.log"
-Set-Logger "C:\WindowsAzure\Logs\Plugins\Microsoft.Compute.CustomScriptExtension\executionLog\UserConfig" # inside "executionCustomScriptExtension_$scriptName_$date.log"
+Set-Logger "C:\WindowsAzure\Logs\Plugins\Microsoft.Compute.CustomScriptExtension\executionLog\FSLogix" # inside "executionCustomScriptExtension_$scriptName_$date.log"
 
 LogInfo("###################")
 LogInfo("## 0 - LOAD DATA ##")
@@ -127,7 +131,7 @@ $ConfigurationFilePath=$PsParam.FullName
 
 $ConfigurationJson = Get-Content -Path $ConfigurationFilePath -Raw -ErrorAction 'Stop'
 
-try { $UserConfig = $ConfigurationJson | ConvertFrom-Json -ErrorAction 'Stop' }
+try { $FSLogixConfig = $ConfigurationJson | ConvertFrom-Json -ErrorAction 'Stop' }
 catch {
     Write-Error "Configuration JSON content could not be converted to a PowerShell object" -ErrorAction 'Stop'
 }
@@ -135,76 +139,66 @@ catch {
 LogInfo("##################")
 LogInfo("## 1 - EVALUATE ##")
 LogInfo("##################")
-foreach ($config in $UserConfig.userconfig) {
-    $credential = New-Object System.Management.Automation.PsCredential("gt1027" + "\" + "ssa", (ConvertTo-SecureString "" -AsPlainText -Force))
-    $Session = new-PSSession -ComputerName "adVm" -Credential $credential
+foreach ($config in $FSLogixConfig.fslogix) {
 
-    if ($config.createGroup) {
-        LogInfo("###########################")
-        LogInfo("## 2 - Create user group ##")
-        LogInfo("###########################")
-        LogInfo("Trigger user group creation")
+    if ($config.installFSLogix) {
+        LogInfo("########################")
+        LogInfo("## 2 - INSTALL FLOGIX ##")
+        LogInfo("########################")
+        LogInfo("Trigger FSLogix")
 
-          
-        $userGroupName = $config.targetGroup
-        $domainName = $config.domain
-        $passWord = $config.password
-
-        LogInfo("Create user group...")
-
-        Invoke-Command -Session $Session { New-ADGroup `
-        -SamAccountName $userGroupName `
-        -Name "$userGroupName" `
-        -DisplayName "$userGroupName" `
-        -GroupScope "Global" `
-        -GroupCategory "Security" -Verbose }
-
-        LogInfo("Create user group completed.")
+        # & "$PSScriptRoot\Install-FSLogix.ps1"
+        if ($PSCmdlet.ShouldProcess("FSLogix", "Install")) {
+            & "$PSScriptRoot\Install-FSLogix.ps1"
+            LogInfo("FSLogix installed")
+        }
     }
-    
-    if ($config.createUser) {
-        LogInfo("########################")
-        LogInfo("## 2 - Create user    ##")
-        LogInfo("########################")
-        LogInfo("Trigger user creation")
 
+    if ($config.configureFSLogix) {
+        LogInfo("###########################")
+        LogInfo("## 3 - CONFIGURE FSLOGIX ##")
+        LogInfo("###########################")
+        foreach ($key in $config.profileContainerKeys) {
+            LogInfo($key.Name)
+            LogInfo($key.Type)
+            LogInfo($key.Value)
+        }
+
+        $($config.profileContainerKeys).GetType() | Format-Table
+        Write-Verbose "Before function count: $($testArr.Count)"
+
+        # & "$PSScriptRoot\Configure-FSLogix.ps1" $config.profileContainerKeys
+        if ($PSCmdlet.ShouldProcess("FSLogix", "Set")) {
+            & "$PSScriptRoot\Set-FSLogix.ps1" $config.profileContainerKeys
+            LogInfo("FSLogix configured")
+        }
+    }
+
+    if ($config.NTFSPermission) {
+        LogInfo("######################################################")
+        LogInfo("## 4 - Set NTFS Permission on the share for FSLogix ##")
+        LogInfo("######################################################")
+        LogInfo($config.fileShareName)
+        LogInfo($config.fileShareStorageAccountName)
+        LogInfo($config.domain)
+        LogInfo($config.targetGroup)
+
+        $fileShareUri = "\\{0}.file.core.windows.net\{1}" -f $config.fileShareStorageAccountName, $config.fileShareName
+        $storageAccountKey = ConvertTo-SecureString -String $DynParameters.storageaccountkey -AsPlainText -Force
         
-        $userName = $config.userName
-        $domainName = $config.domain
-        $passWord = $config.password
+        $fileShareInputObject = @{
+            storageAccountName = $config.fileShareStorageAccountName
+            fileShareUri       = $fileShareUri
+            storageAccountKey  = $storageAccountKey
+            domain             = $config.domain
+            targetGroup        = $config.targetGroup
+        }
+        $fileShareInputObject.Keys | ForEach-Object { LogInfo("Drive: Use param: '{0}' with value '{1}'" -f $_, $fileShareInputObject[$_]) }
 
-        LogInfo("Create user...")
-
-        Invoke-Command -Session $Session { New-ADUser `
-        -SamAccountName $userName `
-        -UserPrincipalName $userName + "@" + $domainName `
-        -Name "$userName" `
-        -GivenName $userName `
-        -Surname $userName `
-        -Enabled $True `
-        -ChangePasswordAtLogon $True `
-        -DisplayName "$userName" `
-        -AccountPassword (convertto-securestring $passWord -AsPlainText -Force) -Verbose }
-
-        LogInfo("Create user completed.")
-    }
-
-    if ($config.assignUsers) {
-        LogInfo("###############################")
-        LogInfo("## 3 - Assign users to group ##")
-        LogInfo("###############################")
-
-        LogInfo("Assigning users to group...")
-        Invoke-Command -Session $Session { Add-ADGroupMember -Identity $config.targetGroup -Members $config.userName } 
-        LogInfo("User assignment to group completed.")
-    }
-
-    if ($config.syncAD) {
-        LogInfo("#############################################")
-        LogInfo("## 4 - Sync new users & group with AD Sync ##")
-        LogInfo("#############################################")
-
-        Invoke-Command -Session $Session { Import-Module ADSync }
-        Invoke-Command -Session $Session { Start-ADSyncSyncCycle -PolicyType Delta -Verbose }
+        # & "$PSScriptRoot\Set-NTFSPermissions.ps1" @fileShareInputObject
+        if ($PSCmdlet.ShouldProcess("NTFS Permissions on the share", "Set")) {
+            & "$PSScriptRoot\Set-NTFSPermissions.ps1" @fileShareInputObject
+            LogInfo("Permissions set")
+        }
     }
 }

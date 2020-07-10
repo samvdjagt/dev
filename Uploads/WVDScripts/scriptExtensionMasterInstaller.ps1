@@ -12,6 +12,10 @@
 
 [CmdletBinding(DefaultParametersetName = 'None')]
 param(
+
+    [Parameter(Mandatory = $true)]
+    [System.Management.Automation.PSCredential] $Credential,
+
     $p = "",    
     [Hashtable] [Parameter(Mandatory = $false)]
 	$DynParameters
@@ -145,6 +149,6 @@ else
 foreach ($scr in $PsScriptsToRun)
 {
     LogInfo "Running $($scr.FullName)"
-    & $scr.FullName -DynParameters $DynParameters
+    & $scr.FullName -DynParameters $DynParameters -Credentials $Credential
 }
 LogInfo "Execution completed"
