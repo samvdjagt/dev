@@ -33,13 +33,13 @@
         "azureAdminUpn": {
             "type": "string",
             "metadata": {
-                "description": "The template will fail if you enter a user account that requires MFA or an application that is secured by a certificate. The UPN or ApplicationId must be an RDS Owner in the Windows Virtual Desktop Tenant to create the hostpool or an RDS Owner of the host pool to provision the host pool with additional VMs."
+                "description": "The UPN of the account that you're currently logged in with on the Azure Portal. This account should at least have the 'contributor' or 'owner' role on the subscription level for the deployment to succeed. The template will fail if you enter a user account that requires MFA."
             }
         },
         "azureAdminPassword": {
             "type": "securestring",
             "metadata": {
-                "description": "The password that corresponds to the Azure admin UPN."
+                "description": "The password that corresponds to the Azure admin UPN above."
             }
         },
         "tenantAdminDomainJoinUPN": {

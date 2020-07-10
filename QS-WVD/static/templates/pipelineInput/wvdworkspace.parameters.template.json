@@ -11,7 +11,6 @@
         "appGroupResourceIds": {
             "value": [
                 "/subscriptions/[subscriptionId]/resourceGroups/[resourceGroupName]/providers/Microsoft.DesktopVirtualization/applicationgroups/[DesktopAppGroupName]",
-                "/subscriptions/[subscriptionId]/resourceGroups/[resourceGroupName]/providers/Microsoft.DesktopVirtualization/applicationgroups/[appGroupName]"
             ]
         },
         "workspaceFriendlyName": {
