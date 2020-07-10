@@ -2,8 +2,6 @@
 $SubscriptionId = Get-AutomationVariable -Name 'subscriptionid'
 $ResourceGroupName = Get-AutomationVariable -Name 'ResourceGroupName'
 $fileURI = Get-AutomationVariable -Name 'fileURI'
-$AutomationAccountName = Get-AutomationVariable -Name 'AccountName'
-$AppName = Get-AutomationVariable -Name 'AppName'
 $principalId = Get-AutomationVariable -Name 'principalId'
 $orgName = Get-AutomationVariable -Name 'orgName'
 $projectName = Get-AutomationVariable -Name 'projectName'
@@ -19,6 +17,7 @@ $existingSubnetName = Get-AutomationVariable -Name 'existingSubnetName'
 $virtualNetworkResourceGroupName = Get-AutomationVariable -Name 'virtualNetworkResourceGroupName'
 $existingVnetName = Get-AutomationVariable -Name 'existingVnetName'
 $computerName = Get-AutomationVariable -Name 'computerName'
+$targetGroup = Get-AutomationVariable -Name 'targetGroup'
 
 # Download files required for this script from github ARMRunbookScripts/static folder
 $FileNames = "msft-wvd-saas-api.zip,msft-wvd-saas-web.zip,AzureModules.zip"
@@ -50,8 +49,6 @@ $CredentialAssetName = 'ServicePrincipalCred'
 #Get the credential with the above name from the Automation Asset store
 $SPCredentials = Get-AutomationPSCredential -Name $CredentialAssetName
 
-$CredentialAssetName3 = Get-AutomationPSCredential -Name "domainJoinCredentials"
-
 #The name of the Automation Credential Asset this runbook will use to authenticate to Azure.
 $CredentialAssetName2 = 'ManagementUXDeploy'
 
@@ -59,7 +56,6 @@ $CredentialAssetName2 = 'ManagementUXDeploy'
 #Get the credential with the above name from the Automation Asset store
 $AzCredentials = Get-AutomationPSCredential -Name $CredentialAssetName2
 $AzCredentials.password.MakeReadOnly()
-$username = $AzCredentials.username
 Connect-AzAccount -Environment 'AzureCloud' -Credential $AzCredentials
 Connect-AzureAD -AzureEnvironmentName 'AzureCloud' -Credential $AzCredentials
 Select-AzSubscription -SubscriptionId $SubscriptionId
@@ -77,8 +73,6 @@ $tenant = (Get-AzTenant).TenantId
 $azureRmProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
 $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azureRmProfile)
 $pat = $profileClient.AcquireAccessToken($context.Subscription.TenantId).AccessToken
-$headers = @{    Authorization="Bearer $pat"}
-
 $token = $pat
 $token = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$($token)"))
 
@@ -185,21 +179,8 @@ write-output $response
 $split = $tenantAdminDomainJoinUPN.Split("@")
 $domainUsername = $split[0]
 $domainName = $split[1]
-
-# Create test user for the new WVD environment
-$credential = New-Object System.Management.Automation.PsCredential($domainName + "\" + $domainUsername, $CredentialAssetName3.password)
-$Session = new-PSSession -ComputerName $computerName -Credential $credential
-Invoke-Command -Session $Session  { Import-Module activedirectory }
-Invoke-Command -Session $Session  { New-ADGroup -Name "WVDTestUsers" -SamAccountName WVDTestUsers -GroupCategory Security -GroupScope Global -DisplayName "WVD Test users" }
-Invoke-Command -Session $Session  { New-ADUser -Name "WVDTestUser" -Enabled $True -SamAccountName "WVDTestUser" -AccountPassword $CredentialAssetName3.password -UserPrincipalName "WVDTestUser@$domainName" }
-Invoke-Command -Session $Session  { Add-ADGroupMember -Identity "WVDTestUsers" -Members "WVDTestUser" }
-
-Invoke-Command -Session $Session  { Import-Module ADSync }
-Invoke-Command -Session $Session  { Start-ADSyncSyncCycle -PolicyType Delta -Verbose }
-
-start-sleep -Seconds 60  # to make sure user was created. TODO: more robus solution to achieve this
-
-$principalIds = (Invoke-Command -Session $Session  { (Get-ADGroup -Name "WVDTestUsers").objectId } )
+$principalIds = (Get-ADGroup -Name $targetGroup).objectId
+Write-Output "Found user group $targetGroup with principal Id $principalIds"
 
 # Get ID of the commit we just pushed, needed for the next commit below
 $url = $("https://dev.azure.com/" + $orgName + "/" + $projectName + "/_apis/git/repositories/" + $projectName + "/refs?filter=heads/master&api-version=5.1")

@@ -30,13 +30,6 @@
                 "description": "The name of the VM with the domain controller."
             }
         },
-        "defaultDesktopUsers": {
-            "type": "string",
-            "metadata": {
-                "description": "Provide a comma separated list of users you would like to assign to access the desktop for this host pool. Example: user1@contoso.com,user2@contoso.com,user3@contoso.com "
-            },
-            "defaultValue": ""
-        },
         "azureAdminUpn": {
             "type": "string",
             "metadata": {
@@ -87,6 +80,7 @@
         "scriptUri2": "[concat(variables('_artifactsLocation'),'/ARMRunbookScripts/devopssetup.ps1')]",
         "devOpsName": "WVDQuickstart28",   
         "devOpsProjectName": "WVDQuickstartProject28",
+        "targetGroup": "WVDUsers",
         "automationVariables": [
             {
                 "name": "subscriptionid",
@@ -105,10 +99,6 @@
                 "value": "[concat('\"',variables('_artifactsLocation'),'\"')]"
             },
             {
-                "name": "AccountName",
-                "value": "[concat('\"',variables('autoAccountName'),'\"')]"
-            },
-                        {
                 "name": "orgName",
                 "value": "[concat('\"',variables('devOpsName'),'\"')]"
             },
@@ -159,6 +149,10 @@
             {
                 "name": "virtualNetworkResourceGroupName",
                 "value": "[concat('\"',parameters('virtualNetworkResourceGroupName'),'\"')]"
+            },
+            {
+                "name": "targetGroup",
+                "value": "[concat('\"', variables('targetGroup'),'\"')]"
             }
         ]   
     },
@@ -171,6 +165,44 @@
             "apiVersion": "2018-11-30",
             "location": "[variables('location')]",
             "properties": {}
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "userCreation",
+            "resourceGroup": "[parameters('virtualNetworkResourceGroupName')]",
+            "subscriptionId": "[subscription().subscriptionId]",
+            "properties": {
+            "mode": "Incremental",
+            "template": {
+                "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {},
+                "variables": {},
+                "resources": [
+                {
+                    "type": "Microsoft.Compute/virtualMachines/extensions",
+                    "apiVersion": "2019-12-01",
+                    "name": "[concat(parameters('computerName'),'/', 'userCreation')]",
+                    "location": "[resourcegroup().location]",
+                    "dependsOn": [],
+                    "properties": {
+                        "publisher": "Microsoft.Compute",
+                        "type": "CustomScriptExtension",
+                        "typeHandlerVersion": "1.7",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                            "fileUris": [
+                                "[concat(variables('_artifactsLocation'), '/Uploads/createUsers.ps1')]"
+                            ],
+                            "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File createUsers.ps1 ', variables('existingDomainName'), ' ', variables('targetGroup'))]"
+                        }
+                    }
+                }
+                ]
+            },
+            "parameters": {}
+            }
         },
         {
             "type": "Microsoft.Automation/automationAccounts/variables",

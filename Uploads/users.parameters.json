@@ -2,13 +2,11 @@
     "userconfig": [
         {
             "createUser": true,
-            "createGroup": false,
+            "createGroup": true,
             "assignUsers": true,
             "syncAD": true,
-            "domain": "gt1027.onmicrosoft.com",
-            "targetGroup": "WVDUsers",
-            "userName": "WVDUser003"
-
+            "userName": "WVDTestUser001",
+            "password": "newUserPwd123!"
         }
     ]
 }

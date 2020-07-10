@@ -1,16 +1,9 @@
 [CmdletBinding(SupportsShouldProcess = $true)]
-param (
-    # [Parameter(Mandatory = $true)]
-    # [ValidateNotNullOrEmpty()]
-    # [string] $storageAccountKey,
+$ConfigurationFileName = "users.parameters.json"
+$domainName = $args[0]
+$targetGroup = $args[1]
 
-    [Parameter(Mandatory = $false)]
-    [Hashtable] $DynParameters,
-    
-    [Parameter(Mandatory = $false)]
-    [ValidateNotNullOrEmpty()]
-    [string] $ConfigurationFileName = "users.parameters.json"
-)
+$domainName
 
 #####################################
 
@@ -139,8 +132,7 @@ foreach ($config in $UserConfig.userconfig) {
         LogInfo("Trigger user group creation")
 
           
-        $userGroupName = $config.targetGroup
-        $domainName = $config.domain
+        $userGroupName = $targetGroup
 
         LogInfo("Create user group...")
 
@@ -160,9 +152,7 @@ foreach ($config in $UserConfig.userconfig) {
         LogInfo("########################")
         LogInfo("Trigger user creation")
 
-        
         $userName = $config.userName
-        $domainName = $config.domain
 
         LogInfo("Create user...")
 
@@ -175,7 +165,7 @@ foreach ($config in $UserConfig.userconfig) {
         -Enabled $True `
         -ChangePasswordAtLogon $True `
         -DisplayName "$userName" `
-        -AccountPassword (convertto-securestring "newUserPwd123!" -AsPlainText -Force) -Verbose)
+        -AccountPassword (convertto-securestring $config.password -AsPlainText -Force) -Verbose)
 
         LogInfo("Create user completed.")
     }
@@ -186,7 +176,7 @@ foreach ($config in $UserConfig.userconfig) {
         LogInfo("###############################")
 
         LogInfo("Assigning users to group...")
-        LogInfo(Add-ADGroupMember -Identity $config.targetGroup -Members $config.$userName)
+        LogInfo(Add-ADGroupMember -Identity $targetGroup -Members $config.$userName)
         LogInfo("User assignment to group completed.")
     }
 
