@@ -91,7 +91,7 @@ if ($RoleAssignment.RoleDefinitionName -eq "Owner" -or $RoleAssignment.RoleDefin
 	New-AzADAppCredential -ObjectId $azAdApplication.ObjectId -Password $secureClientSecret -StartDate $StartDate -EndDate $EndDate
 
 	# Get the applicationId
-	$applicationId = $azAdApplication.AppId
+	$applicationId = $azAdApplication.ApplicationId
 	Write-Output "Azure AAD Application creation completed successfully with AppName $AppName (Application Id is: $applicationId)" -Verbose
 
 	# Create new Service Principal
