@@ -87,6 +87,10 @@
                 "value": "[concat('\"',subscription().subscriptionId,'\"')]"
             },
             {
+                "name": "accountName",
+                "value": "[concat('\"',variables('autoAccountName'),'\"')]"
+            },
+            {
                 "name": "AppName",
                 "value": "[concat('\"',variables('identityName'),'\"')]"
             },
