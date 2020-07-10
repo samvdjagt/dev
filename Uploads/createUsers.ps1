@@ -176,7 +176,7 @@ foreach ($config in $UserConfig.userconfig) {
         LogInfo("###############################")
 
         LogInfo("Assigning users to group...")
-        LogInfo(Add-ADGroupMember -Identity $targetGroup -Members $config.$userName)
+        LogInfo(Add-ADGroupMember -Identity $targetGroup -Members $config.userName)
         LogInfo("User assignment to group completed.")
     }
 
@@ -188,4 +188,6 @@ foreach ($config in $UserConfig.userconfig) {
         LogInfo(Import-Module ADSync)
         LogInfo(Start-ADSyncSyncCycle -PolicyType Delta -Verbose)
     }
+
+    Start-Sleep -Seconds 20
 }

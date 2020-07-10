@@ -179,7 +179,7 @@ write-output $response
 $split = $tenantAdminDomainJoinUPN.Split("@")
 $domainUsername = $split[0]
 $domainName = $split[1]
-$principalIds = (Get-ADGroup -Name $targetGroup).objectId
+$principalIds = (Get-azureADGroup -Name $targetGroup).objectId
 Write-Output "Found user group $targetGroup with principal Id $principalIds"
 
 # Get ID of the commit we just pushed, needed for the next commit below
