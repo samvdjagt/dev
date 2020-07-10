@@ -226,6 +226,7 @@
             "name": "[variables('autoAccountName')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
+                "[concat('Microsoft.Resources/deployments', '/userCreation')]"
             ],
             "tags": {},
             "properties": {
