@@ -230,6 +230,7 @@ $parameters = $parameters.Replace("[assetsName]", $wvdAssetsStorage)
 $parameters = $parameters.Replace("[profilesName]", $profilesStorageAccountName)
 $parameters = $parameters.Replace("[resourceGroupName]", $ResourceGroupName)
 $parameters = $parameters.Replace("[principalIds]", $principalIds)
+$parameters = $parameters.Replace("[targetGroup]", $targetGroup)
 $parameters = $parameters.Replace('"', "'")
 write-output $parameters
 

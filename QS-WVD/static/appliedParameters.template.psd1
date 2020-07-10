@@ -56,6 +56,7 @@
     # ================== #
     appGroupName                          = "QS-WVD-RAG"                        # default
     DesktopAppGroupName                   = "QS-WVD-DAG"                        # default
+    targetGroup                           = "[targetGroup]"
     principalIds                          = "[principalIds]"  # principal ID of test user group
     workSpaceName                         = "QS-WVD-WS"                         # default
     workspaceFriendlyName                 = "WVD Workspace"                     # default
