@@ -56,9 +56,7 @@
     # ================== #
     appGroupName                          = "QS-WVD-RAG"                        # default
     DesktopAppGroupName                   = "QS-WVD-DAG"                        # default
-    targetGroup                           = "WVDUsers"                              # name of user group with associated principalId below
-    newUserName                           = "WVDUser001"
-    principalIds                          = "[principalIds]"  # from user input on users to assign
+    principalIds                          = "[principalIds]"  # principal ID of test user group
     workSpaceName                         = "QS-WVD-WS"                         # default
     workspaceFriendlyName                 = "WVD Workspace"                     # default
     ######################

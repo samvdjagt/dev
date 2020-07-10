@@ -139,9 +139,6 @@ variables:
 - name: profilesStorageAccountName
   value: "[profilesStorageAccountName]"
 
-- name: targetGroup
-  value: "WVDUsers"
-
 ## Image Lifecycle
 - name: DeleteVM
   value: false

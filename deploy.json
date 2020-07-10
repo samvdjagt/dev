@@ -80,7 +80,7 @@
         "scriptUri2": "[concat(variables('_artifactsLocation'),'/ARMRunbookScripts/devopssetup.ps1')]",
         "devOpsName": "WVDQuickstart28",   
         "devOpsProjectName": "WVDQuickstartProject28",
-        "targetGroup": "WVDUsers",
+        "targetGroup": "WVDTestUsers",
         "automationVariables": [
             {
                 "name": "subscriptionid",
