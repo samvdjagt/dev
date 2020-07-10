@@ -124,10 +124,6 @@
                 {
                     "uri": "https://[wvdAssetsStorage].blob.core.windows.net/wvdscripts/002-NotepadPP.zip",
                     "storageAccountId": "/subscriptions/[subscriptionId]/resourceGroups/[wvdMgmtResourceGroupName]/providers/Microsoft.Storage/storageAccounts/[wvdAssetsStorage]"
-                },
-                {
-                    "uri": "https://[wvdAssetsStorage].blob.core.windows.net/wvdscripts/003-CreateUsers.zip",
-                    "storageAccountId": "/subscriptions/[subscriptionId]/resourceGroups/[wvdMgmtResourceGroupName]/providers/Microsoft.Storage/storageAccounts/[wvdAssetsStorage]"
                 }
             ]
         }

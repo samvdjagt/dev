@@ -50,11 +50,11 @@ $CredentialAssetName = 'ServicePrincipalCred'
 $SPCredentials = Get-AutomationPSCredential -Name $CredentialAssetName
 
 #The name of the Automation Credential Asset this runbook will use to authenticate to Azure.
-$CredentialAssetName2 = 'ManagementUXDeploy'
+$AzCredentialsAsset = 'AzureCredentials'
 
 #Authenticate Azure
 #Get the credential with the above name from the Automation Asset store
-$AzCredentials = Get-AutomationPSCredential -Name $CredentialAssetName2
+$AzCredentials = Get-AutomationPSCredential -Name $AzCredentialsAsset
 $AzCredentials.password.MakeReadOnly()
 Connect-AzAccount -Environment 'AzureCloud' -Credential $AzCredentials
 Connect-AzureAD -AzureEnvironmentName 'AzureCloud' -Credential $AzCredentials

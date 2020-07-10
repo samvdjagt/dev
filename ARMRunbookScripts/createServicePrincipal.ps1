@@ -58,19 +58,19 @@ if ($RoleAssignment.RoleDefinitionName -eq "Owner" -or $RoleAssignment.RoleDefin
 	if ($existingApplication -ne $null)
 	{
 		$appId = $existingApplication.ApplicationId
-		Write-Output "An AAD Application already exists with AppName $AppName(Application Id: $appId). Choose a different AppName" -Verbose
-		exit
+		Write-Output "An AAD Application already exists with AppName $AppName(Application Id: $appId). Will attempt to handle deployment with this existing application." -Verbose
 	}
-
-	try
-	{
-		# Create a new AD Application with provided AppName
-		$azAdApplication = New-AzureADApplication -DisplayName $AppName -PublicClient $false -AvailableToOtherTenants $false -ReplyUrls $redirectURL
-	}
-	catch
-	{
-		Write-Error "You must call the Connect-AzureAD cmdlet before calling any other cmdlets"
-		exit
+	else {
+		try
+		{
+			# Create a new AD Application with provided AppName
+			$azAdApplication = New-AzureADApplication -DisplayName $AppName -PublicClient $false -AvailableToOtherTenants $false -ReplyUrls $redirectURL
+		}
+		catch
+		{
+			Write-Error "You must call the Connect-AzureAD cmdlet before calling any other cmdlets"
+			exit
+		}
 	}
 
 	# Create a Client Secret
@@ -96,8 +96,23 @@ if ($RoleAssignment.RoleDefinitionName -eq "Owner" -or $RoleAssignment.RoleDefin
 
 	# Create new Service Principal
 	Write-Output "Creating a new Service Principal" -Verbose
-	$ServicePrincipal = New-AzADServicePrincipal -ApplicationId $applicationId
-
+	$ServicePrincipal = Get-AzADServicePrincipal -ApplicationId $applicationId -ErrorAction SilentlyContinue
+	if ($ServicePrincipal -ne $null)
+	{
+		Write-Output "A service principal already exists for this AAD application. Will attempt to handle deployment with this existing service principal." -Verbose
+	}
+	else {
+		try
+		{
+			$ServicePrincipal = New-AzADServicePrincipal -ApplicationId $applicationId
+		}
+		catch
+		{
+			Write-Error "You must call the Connect-AzureAD cmdlet before calling any other cmdlets"
+			exit
+		}
+	}
+	
 	# Get the Service Principal
 	Get-AzADServicePrincipal -ApplicationId $applicationId
 	$ServicePrincipalName = $ServicePrincipal.ServicePrincipalNames
@@ -160,5 +175,5 @@ if ($RoleAssignment.RoleDefinitionName -eq "Owner" -or $RoleAssignment.RoleDefin
 }
 else
 {
-	Write-Output "Authenticated user should have the Owner/Contributor permissions"
+	Write-Error "Authenticated user should have the Owner/Contributor permissions"
 }

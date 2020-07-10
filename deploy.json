@@ -69,14 +69,13 @@
         "autoAccountName": "[concat('auto', toLower(parameters('utcValue')))]",
         "uniquestr": "[uniqueString(resourceGroup().id, deployment().name)]",
         "runbookName": "[concat('wvdrunbook','-',variables('uniquestr'))]",
-        "credentialName": "ManagementUXDeploy",
         "subnet-id": "[resourceId(parameters('virtualNetworkResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('existingVnetName'), parameters('existingSubnetName'))]",
         "tenantId": "[subscription().tenantId]",
         "uniqueBase": "[toLower(uniquestring(variables('identityName'), resourceGroup().id, parameters('utcValue'),variables('autoAccountName')))]",
         "uniqueBase2": "[toLower(uniquestring(variables('identityName'), subscription().id, parameters('utcValue'),'devOpsSetup'))]",
         "newGuid": "[guid(variables('uniqueBase'))]",
         "newGuid2": "[guid(variables('uniqueBase2'))]",
-        "scriptUri": "[concat(variables('_artifactsLocation'),'/ARMRunbookScripts/createServicePrincipal2.ps1')]",
+        "scriptUri": "[concat(variables('_artifactsLocation'),'/ARMRunbookScripts/createServicePrincipal.ps1')]",
         "scriptUri2": "[concat(variables('_artifactsLocation'),'/ARMRunbookScripts/devopssetup.ps1')]",
         "devOpsName": "WVDQuickstart28",   
         "devOpsProjectName": "WVDQuickstartProject28",
@@ -261,7 +260,7 @@
                 {
                     "type": "credentials",
                     "apiVersion": "2015-01-01-preview",
-                    "name": "[variables('credentialName')]",
+                    "name": "AzureCredentials",
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
                         "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'))]"
