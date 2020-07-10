@@ -54,10 +54,10 @@ if ($RoleAssignment.RoleDefinitionName -eq "Owner" -or $RoleAssignment.RoleDefin
 	$redirectURL = "https://" + "$AppName" + ".azurewebsites.net" + "/"
 	
 	# Check whether the AD Application exist/ not
-	$existingApplication = Get-AzADApplication -DisplayName $AppName -ErrorAction SilentlyContinue
-	if ($existingApplication -ne $null)
+	$azAdApplication = Get-AzADApplication -DisplayName $AppName -ErrorAction SilentlyContinue
+	if ($azAdApplication -ne $null)
 	{
-		$appId = $existingApplication.ApplicationId
+		$appId = $azAdApplication.ApplicationId
 		Write-Output "An AAD Application already exists with AppName $AppName(Application Id: $appId). Will attempt to handle deployment with this existing application." -Verbose
 	}
 	else {
