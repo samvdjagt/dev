@@ -25,11 +25,11 @@ Set-ExecutionPolicy -ExecutionPolicy Undefined -Scope Process -Force -Confirm:$f
 Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope LocalMachine -Force -Confirm:$false
 Get-ExecutionPolicy -List
 #The name of the Automation Credential Asset this runbook will use to authenticate to Azure.
-$CredentialAssetName = 'ManagementUXDeploy'
+$AzCredentialsAsset = 'AzureCredentials'
 
 #Authenticate Azure
 #Get the credential with the above name from the Automation Asset store
-$AzCredentials = Get-AutomationPSCredential -Name $CredentialAssetName
+$AzCredentials = Get-AutomationPSCredential -Name $AzCredentialsAsset
 $AzCredentials.password.MakeReadOnly()
 $username = $AzCredentials.username
 Connect-AzAccount -Environment 'AzureCloud' -Credential $AzCredentials
