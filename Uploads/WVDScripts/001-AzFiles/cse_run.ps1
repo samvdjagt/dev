@@ -182,5 +182,4 @@ foreach ($config in $azfilesconfig.azfilesconfig) {
     
         LogInfo("Az files enabled!")
     }
-    
 }
