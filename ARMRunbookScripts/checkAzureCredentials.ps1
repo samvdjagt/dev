@@ -3,7 +3,9 @@ param(
 	[string] [Parameter(Mandatory=$true)] $password
 )
 
+Import-Module AzureAD
+
 $ErrorActionPreference = 'Stop'
 
 $Credential = New-Object System.Management.Automation.PsCredential($username, (ConvertTo-SecureString $password -AsPlainText -Force))
-Connect-AzAccount -credential $Credential
+Connect-AzureAD -AzureEnvironmentName 'AzureCloud' -Credential $Credential
