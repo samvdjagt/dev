@@ -3,6 +3,7 @@ param(
 	[string] [Parameter(Mandatory=$true)] $password
 )
 
+Install-Module AzureAD
 Import-Module AzureAD
 
 $ErrorActionPreference = 'Stop'
