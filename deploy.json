@@ -204,10 +204,7 @@
                 }
                 ]
             },
-            "parameters": {},
-            "dependsOn": [
-                "[concat('Microsoft.Resources/deploymentScripts', '/checkAzureCredentials')]"
-            ]
+            "parameters": {}
             }
         },
         {
