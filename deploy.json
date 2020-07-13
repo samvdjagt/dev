@@ -447,18 +447,7 @@
                 "azPowerShellVersion": "3.0",
                 "timeout": "PT30M",
                 "arguments": "[format(' -username {0} -password {1} ', parameters('azureAdminUpn'), parameters('azureAdminPassword'))]",
-                "scriptContent": "
-                param(
-                    [string] [Parameter(Mandatory=$true)] $username,
-                    [string] [Parameter(Mandatory=$true)] $password
-                )
-
-                $ErrorActionPreference = 'Stop'
-                $DeploymentScriptOutputs = @{}
-
-                
-
-                ",
+                "primaryScriptUri": "[concat(variables('_artifactsLocation'),'/ARMRunbookScripts/checkAzureCredentials.ps1')]",
                 "cleanupPreference": "OnSuccess",
                 "retentionInterval": "P1D"
             }
