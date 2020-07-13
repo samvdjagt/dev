@@ -431,17 +431,17 @@
             "type": "Microsoft.Resources/deploymentScripts",
             "apiVersion": "2019-10-01-preview",
             "name": "checkAzureCredentials",
-            "location": "[resourceGroup().location]",
+            "location": "[variables('location')]",
             "dependsOn": [
                 "[concat('Microsoft.ManagedIdentity/userAssignedIdentities/', variables('identityName'))]"
             ],
+            "kind": "AzureCLI",
             "identity": {
                 "type": "UserAssigned",
                 "userAssignedIdentities": {
                     "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities/', variables('identityName'))]": {}
                 }
             },
-            "kind": "AzureCLI",
             "properties": {
                 "forceUpdateTag": 1,
                 "azCliVersion": "2.0.80",
