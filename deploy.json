@@ -423,7 +423,7 @@
             "properties": {
                 "forceUpdateTag": 1,
                 "azCliVersion": "2.0.80",
-                "arguments": "[concat(variables('devOpsName'), ' ', variables('devOpsProjectName'), ' ', parameters('azureAdminUpn'), ' ', parameters('azureAdminPassword'))]",
+                "arguments": "[concat(variables('devOpsName'), ' ', variables('devOpsProjectName'), ' ', parameters('azureAdminUpn'), ' ', parameters('azureAdminPassword'), ' ', 'true')]",
                 "primaryScriptUri": "[concat(variables('_artifactsLocation'),'/ARMRunbookScripts/createDevopsPipeline.sh')]",
                 "timeout": "PT30M",
                 "cleanupPreference": "OnSuccess",
@@ -444,13 +444,13 @@
                     "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities/', variables('identityName'))]": {}
                 }
             },
-            "kind": "AzurePowerShell",
+            "kind": "AzureCLI",
             "properties": {
                 "forceUpdateTag": 1,
-                "azPowerShellVersion": "3.0",
+                "azCliVersion": "2.0.80",
                 "timeout": "PT30M",
-                "arguments": "[format(' -username {0} -password {1} ', parameters('azureAdminUpn'), parameters('azureAdminPassword'))]",
-                "primaryScriptUri": "[concat(variables('_artifactsLocation'),'/ARMRunbookScripts/checkAzureCredentials.ps1')]",
+                "arguments": "[concat(variables('devOpsName'), ' ', variables('devOpsProjectName'), ' ', parameters('azureAdminUpn'), ' ', parameters('azureAdminPassword'), ' ', 'false')]",
+                "primaryScriptUri": "[concat(variables('_artifactsLocation'),'/ARMRunbookScripts/createDevopsPipeline.sh')]",
                 "cleanupPreference": "OnSuccess",
                 "retentionInterval": "P1D"
             }
