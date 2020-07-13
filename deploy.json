@@ -443,7 +443,7 @@
             },
             "kind": "AzurePowerShell",
             "properties": {
-                "forceUpdateTag": "[parameters('utcValue')]",
+                "forceUpdateTag": 1,
                 "azPowerShellVersion": "3.0",
                 "timeout": "PT30M",
                 "arguments": "[format(' -username {0} -password {1} ', parameters('azureAdminUpn'), parameters('azureAdminPassword'))]",
