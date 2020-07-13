@@ -4,7 +4,10 @@ param (
     [Hashtable] $DynParameters,
 
     [Parameter(Mandatory = $false)]
-    [System.Management.Automation.PSCredential] $Credential,
+    [string] $username,
+
+    [Parameter(Mandatory = $false)]
+    [System.Security.SecureString] $password,
 
     [Parameter(Mandatory = $false)]
     [ValidateNotNullOrEmpty()]

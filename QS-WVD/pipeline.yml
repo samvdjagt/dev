@@ -39,14 +39,21 @@ stages:
                 inputs:
                   SourceFolder: '$(Build.Repository.LocalPath)/QS-WVD/Parameters'
                   Contents: 'fslogix.parameters.json'
-                  TargetFolder: '$(Pipeline.Workspace)/s/Uploads/WVDScripts/001-FSLogix'
+                  TargetFolder: '$(Pipeline.Workspace)/s/Uploads/WVDScripts/002-FSLogix'
                   OverWrite: true
               - task: CopyFiles@2
                 name: Copy_Userconfig_parameters
                 inputs:
                   SourceFolder: '$(Build.Repository.LocalPath)/QS-WVD/Parameters'
                   Contents: 'users.parameters.json'
-                  TargetFolder: '$(Pipeline.Workspace)/s/Uploads/WVDScripts/003-CreateUsers'
+                  TargetFolder: '$(Pipeline.Workspace)/s/Uploads'
+                  OverWrite: true
+              - task: CopyFiles@2
+                name: Copy_AzFiles_parameters
+                inputs:
+                  SourceFolder: '$(Build.Repository.LocalPath)/QS-WVD/Parameters'
+                  Contents: 'azfiles.parameters.json'
+                  TargetFolder: '$(Pipeline.Workspace)/s/Uploads/WVDScripts/001-AzFiles'
                   OverWrite: true
               - task: CopyFiles@2
                 name: Copy_Deployment_parameters
@@ -387,7 +394,7 @@ stages:
                     $credentials = Get-AzAutomationCredential -Name 'AzureCredentials' -ResourceGroupName '$(wvd-hostpool01-rg)' -AutomationAccountName '$(automationAccountName)'
                     $storageAccount = Get-AzResource -Name $(profilesStorageAccountName) -ResourceType 'Microsoft.Storage/storageAccounts'
                     $SASKey = (Get-AzStorageAccountKey -AccountName $storageAccount.Name -ResourceGroupName $storageAccount.ResourceGroupName)[0]                    
-                    $windowsScriptExtensionCommandToExecute = 'powershell -ExecutionPolicy Unrestricted -Command "& .\scriptExtensionMasterInstaller.ps1 -Credential $credentials -Dynparameters @{storageaccountkey=\"'+ $($SASKey.Value) +'\"}"'
+                    $windowsScriptExtensionCommandToExecute = 'powershell -ExecutionPolicy Unrestricted -Command "& .\scriptExtensionMasterInstaller.ps1 -Username $credentials.username -Password $credentials.password -Dynparameters @{storageaccountkey=\"'+ $($SASKey.Value) +'\"}"'
                     $windowsScriptExtensionCommandToExecute = ConvertTo-SecureString -String $windowsScriptExtensionCommandToExecute -AsPlainText -Force
                     
                     $parameterObjects += @{

@@ -8,11 +8,14 @@ param (
     [Hashtable] $DynParameters,
 
     [Parameter(Mandatory = $true)]
-    [System.Management.Automation.PSCredential] $Credential,
+    [string] $username,
+
+    [Parameter(Mandatory = $true)]
+    [System.Security.SecureString] $password,
     
     [Parameter(Mandatory = $false)]
     [ValidateNotNullOrEmpty()]
-    [string] $ConfigurationFileName = "users.parameters.json"
+    [string] $ConfigurationFileName = "azfiles.parameters.json"
 )
 
 #####################################
@@ -158,6 +161,7 @@ foreach ($config in $azfilesconfig.azfilesconfig) {
         Import-Module -Name AzFilesHybrid
 
         LogInfo("Login with an Azure AD credential")
+        $Credential = New-Object System.Management.Automation.PsCredential($username, $password)
         Connect-AzAccount -Credential $Credential
 
         #Define parameters
@@ -178,7 +182,8 @@ foreach ($config in $azfilesconfig.azfilesconfig) {
         Join-AzStorageAccountForAuth `
                 -ResourceGroupName $ResourceGroupName `
                 -StorageAccountName $StorageAccountName `
-                -DomainAccountType "<ComputerAccount|ServiceLogonAccount>" 
+                -DomainAccountType "ComputerAccount" `
+                -OrganizationalUnitName "Domain Controllers"
     
         LogInfo("Az files enabled!")
     }

@@ -58,6 +58,8 @@
     DesktopAppGroupName                   = "QS-WVD-DAG"                        # default
     targetGroup                           = "[targetGroup]"
     principalIds                          = "[principalIds]"  # principal ID of test user group
+    testUsername                          = "WVDTestUser003"                    # default
+    testPassword                          = "Quickstart123!"                    # default
     workSpaceName                         = "QS-WVD-WS"                         # default
     workspaceFriendlyName                 = "WVD Workspace"                     # default
     ######################
