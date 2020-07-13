@@ -177,7 +177,7 @@ write-output $body
 $response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Basic $token"} -Method Post -Body $Body -ContentType application/json
 write-output $response
 
-start-sleep -Seconds 10
+start-sleep -Seconds 20
 
 $split = $tenantAdminDomainJoinUPN.Split("@")
 $domainUsername = $split[0]

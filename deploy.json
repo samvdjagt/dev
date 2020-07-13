@@ -229,7 +229,8 @@
             "name": "[variables('autoAccountName')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[concat('Microsoft.Resources/deployments', '/userCreation')]"
+                "[concat('Microsoft.Resources/deployments', '/userCreation')]",
+                "[concat('Microsoft.Resources/deploymentScripts', '/checkAzureCredentials')]"
             ],
             "tags": {},
             "properties": {
@@ -370,7 +371,7 @@
                 }
             },
             "dependsOn": [
-               
+               "[concat('Microsoft.Resources/deploymentScripts', '/checkAzureCredentials')]"
             ],
             "resources": [
             ]
@@ -396,6 +397,9 @@
               "operationType": "Create",
               "accountName": "[variables('devOpsName')]"
             },
+            "dependsOn": [
+                "[concat('Microsoft.Resources/deploymentScripts', '/checkAzureCredentials')]"
+            ],
             "resources": []
         },
         {
@@ -419,6 +423,42 @@
                 "arguments": "[concat(variables('devOpsName'), ' ', variables('devOpsProjectName'), ' ', parameters('azureAdminUpn'), ' ', parameters('azureAdminPassword'))]",
                 "primaryScriptUri": "[concat(variables('_artifactsLocation'),'/ARMRunbookScripts/createDevopsPipeline.sh')]",
                 "timeout": "PT30M",
+                "cleanupPreference": "OnSuccess",
+                "retentionInterval": "P1D"
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deploymentScripts",
+            "apiVersion": "2019-10-01-preview",
+            "name": "checkAzureCredentials",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[concat('Microsoft.ManagedIdentity/userAssignedIdentities/', variables('identityName'))]"
+            ],
+            "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities/', variables('identityName'))]": {}
+                }
+            },
+            "kind": "AzurePowerShell",
+            "properties": {
+                "forceUpdateTag": "[parameters('utcValue')]",
+                "azPowerShellVersion": "3.0",
+                "timeout": "PT30M",
+                "arguments": "[format(' -username {0} -password {1} ', parameters('azureAdminUpn'), parameters('azureAdminPassword'))]",
+                "scriptContent": "
+                param(
+                    [string] [Parameter(Mandatory=$true)] $username,
+                    [string] [Parameter(Mandatory=$true)] $password
+                )
+
+                $ErrorActionPreference = 'Stop'
+                $DeploymentScriptOutputs = @{}
+
+                
+
+                ",
                 "cleanupPreference": "OnSuccess",
                 "retentionInterval": "P1D"
             }
