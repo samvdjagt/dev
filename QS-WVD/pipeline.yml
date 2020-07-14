@@ -39,7 +39,7 @@ stages:
                 inputs:
                   SourceFolder: '$(Build.Repository.LocalPath)/QS-WVD/Parameters'
                   Contents: 'fslogix.parameters.json'
-                  TargetFolder: '$(Pipeline.Workspace)/s/Uploads/WVDScripts/002-FSLogix'
+                  TargetFolder: '$(Pipeline.Workspace)/s/Uploads/WVDScripts/003-FSLogix'
                   OverWrite: true
               - task: CopyFiles@2
                 name: Copy_Userconfig_parameters
@@ -53,7 +53,7 @@ stages:
                 inputs:
                   SourceFolder: '$(Build.Repository.LocalPath)/QS-WVD/Parameters'
                   Contents: 'azfiles.parameters.json'
-                  TargetFolder: '$(Pipeline.Workspace)/s/Uploads/WVDScripts/001-AzFiles'
+                  TargetFolder: '$(Pipeline.Workspace)/s/Uploads/WVDScripts/002-AzFiles'
                   OverWrite: true
               - task: CopyFiles@2
                 name: Copy_Deployment_parameters
