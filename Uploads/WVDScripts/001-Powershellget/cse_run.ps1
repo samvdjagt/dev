@@ -1,21 +1,17 @@
 [CmdletBinding(SupportsShouldProcess = $true)]
 param (
+    # [Parameter(Mandatory = $true)]
+    # [ValidateNotNullOrEmpty()]
+    # [string] $storageAccountKey,
+
     [Parameter(Mandatory = $false)]
     [Hashtable] $DynParameters,
 
-    [Parameter(Mandatory = $false)]
+    [Parameter(Mandatory = $true)]
     [string] $username,
 
-    [Parameter(Mandatory = $false)]
-    [System.Security.SecureString] $password,
-
-    [Parameter(Mandatory = $false)]
-    [ValidateNotNullOrEmpty()]
-    [string] $ExecutableName = "npp.7.8.7.Installer.exe",
-
-    [Parameter(Mandatory = $false)]
-    [ValidateNotNullOrEmpty()]
-    [string] $Switches = "/S /D=${Env:ProgramFiles(x86)}\Notepad++\"
+    [Parameter(Mandatory = $true)]
+    [string] $password
 )
 
 #####################################
@@ -35,6 +31,7 @@ function LogError($message) {
 function LogSkip($message) {
     Log "Skip" $message
 }
+
 function LogWarning($message) {
     Log "Warning" $message
 }
@@ -116,22 +113,17 @@ function Set-Logger {
 }
 #endregion
 
-Set-Logger "C:\WindowsAzure\Logs\Plugins\Microsoft.Compute.CustomScriptExtension\executionLog\NPP" # inside "executionCustomScriptExtension_$scriptName_$date.log"
 
-#####################
-# 1 Install Notepad ++ #
-#####################
-LogInfo("########################")
-LogInfo("# 1. Install Notepad++ #")
-LogInfo("########################")
+## MAIN
+#Set-Logger "C:\WindowsAzure\CustomScriptExtension\Log" # inside "executionCustomScriptExtension_$date.log"
+Set-Logger "C:\WindowsAzure\Logs\Plugins\Microsoft.Compute.CustomScriptExtension\executionLog\powershellgetconfig" # inside "executionCustomScriptExtension_$scriptName_$date.log"
 
-# to get switches run cmd with '$path /?'
+LogInfo("##################")
+LogInfo("## 0 - EVALUATE ##")
+LogInfo("##################")
 
-#$Switches = "/S /D=${Env:ProgramFiles(x86)}\Notepad++\"
-#$ExecutableName = "npp.7.8.7.Installer.exe"
-$NPPExePath = Join-Path $PSScriptRoot $ExecutableName
+$powershellgetPath = Join-Path $PSScriptRoot "Powershellget.2.2.4.1\powershellget.psd1"
+Import-Module -Name $powershellgetPath -Force
 
+LogInfo("Successfully imported powershellGet")
 
-LogInfo("Trigger installation of file '$NPPExePath' with switches '$witches'")
-$Installer = Start-Process -FilePath $NPPExePath -ArgumentList $Switches -Wait -PassThru
-LogInfo("The exit code is $($Installer.ExitCode)")

@@ -304,5 +304,29 @@ write-output $body
 $response = Invoke-RestMethod -Method PATCH -Uri $url -Headers @{Authorization = "Basic $token"} -Body $body -ContentType "application/json"
 write-output $response
 
+$url = $("https://dev.azure.com/" + $orgName + "/" + $projectName + "/_apis/distributedtask/variablegroups?api-version=5.1-preview.1")
+write-output $url
 
+$BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($SecurePassword)
+$UnsecurePassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
 
+$body = @"
+{
+  "variables": {
+    "azureAdminUpn": {
+      "value": "$($AzCredentials.username)"
+    },
+    "azureAdminPassword": {
+      "value": "$($UnsecurePassword)",
+      "isSecret": true
+    }
+  },
+  "type": "Vsts",
+  "name": "WVDSecrets",
+  "description": "Azure credentials neede for DevOps pipeline"
+}
+"@
+write-output $body
+
+$response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Basic $token"} -Method Post -Body $Body -ContentType application/json
+write-output $response

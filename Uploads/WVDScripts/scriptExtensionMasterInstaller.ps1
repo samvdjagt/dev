@@ -17,7 +17,7 @@ param(
     [string] $username,
 
     [Parameter(Mandatory = $true)]
-    [System.Security.SecureString] $password,
+    [string] $password,
 
     $p = "",    
     [Hashtable] [Parameter(Mandatory = $false)]
@@ -152,6 +152,6 @@ else
 foreach ($scr in $PsScriptsToRun)
 {
     LogInfo "Running $($scr.FullName)"
-    & $scr.FullName -DynParameters $DynParameters -Credential $Credential
+    & $scr.FullName -DynParameters $DynParameters -username $username -password $password
 }
 LogInfo "Execution completed"

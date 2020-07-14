@@ -77,7 +77,7 @@ variables:
   value: 'QS-WVD' # Change this to RG name at the end
 
 ### Key Vault ###
-#- group: "WVDSecrets"
+- group: "WVDSecrets"
 
 - name: domainJoinUserName
   value: "[adminUsername]"

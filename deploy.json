@@ -4,7 +4,10 @@
     "parameters": {
         "utcValue": {
             "type": "string",
-            "defaultValue": "[utcNow()]"
+            "defaultValue": "[utcNow()]",
+            "allowedValues": [
+                "[utcNow()]"
+            ]
         },
         "existingVnetName": {
             "type": "string",

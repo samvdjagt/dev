@@ -11,7 +11,7 @@ param (
     [string] $username,
 
     [Parameter(Mandatory = $false)]
-    [System.Security.SecureString] $password,
+    [string] $password,
     
     [Parameter(Mandatory = $false)]
     [ValidateNotNullOrEmpty()]

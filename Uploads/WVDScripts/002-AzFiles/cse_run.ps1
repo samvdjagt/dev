@@ -11,7 +11,7 @@ param (
     [string] $username,
 
     [Parameter(Mandatory = $true)]
-    [System.Security.SecureString] $password,
+    [string] $password,
     
     [Parameter(Mandatory = $false)]
     [ValidateNotNullOrEmpty()]
@@ -157,11 +157,15 @@ foreach ($config in $azfilesconfig.azfilesconfig) {
         # Navigate to where AzFilesHybrid is unzipped and stored and run to copy the files into your path
         .\CopyToPSPath.ps1 
 
+        LogInfo("Import Az...")
+        Install-Module -Name Az
+        Import-Module -Name Az
+
         LogInfo("Import AzFilesHybrid module...")
         Import-Module -Name AzFilesHybrid
 
         LogInfo("Login with an Azure AD credential")
-        $Credential = New-Object System.Management.Automation.PsCredential($username, $password)
+        $Credential = New-Object System.Management.Automation.PsCredential($username, (ConvertTo-SecureString $password -AsPlainText -Force))
         Connect-AzAccount -Credential $Credential
 
         #Define parameters
