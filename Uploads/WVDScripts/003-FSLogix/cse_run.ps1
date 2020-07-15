@@ -131,9 +131,7 @@ LogInfo("## 0 - LOAD DATA ##")
 LogInfo("###################")
 #$storageaccountkey = $DynParameters.storageaccountkey
 
-$PsParam = Get-ChildItem -path "_deploy" -Filter $ConfigurationFileName -Recurse | sort -Property FullName
-$ConfigurationFilePath=$PsParam.FullName
-#$ConfigurationFilePath= Join-Path $PSScriptRoot $ConfigurationFileName
+$ConfigurationFilePath= Join-Path $PSScriptRoot $ConfigurationFileName
 
 $ConfigurationJson = Get-Content -Path $ConfigurationFilePath -Raw -ErrorAction 'Stop'
 
