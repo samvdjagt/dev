@@ -336,7 +336,7 @@ $body = @"
       "isSecret": true
     },
     "domainJoinPassword": {
-      "value": "$($DomainUnsecurePassword),
+      "value": "$($DomainUnsecurePassword)",
       "isSecret": true
     }
   },
