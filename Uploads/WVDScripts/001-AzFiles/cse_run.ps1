@@ -156,9 +156,10 @@ foreach ($config in $azfilesconfig.azfilesconfig) {
         Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser -Force
 
         #Define parameters
-        $config = $config.Replace('"', "'")
         $ResourceGroupName = $config.ResourceGroupName
+        $ResourceGroupName = $ResourceGroupName.replace('"', "'")
         $StorageAccountName = $config.StorageAccountName
+        $StorageAccountName = $StorageAccountName.replace('"', "'")
 
         # Register the target storage account with your active directory environment under the target OU (for example: specify the OU with Name as "UserAccounts" or DistinguishedName as "OU=UserAccounts,DC=CONTOSO,DC=COM"). 
         # You can use to this PowerShell cmdlet: Get-ADOrganizationalUnit to find the Name and DistinguishedName of your target OU. If you are using the OU Name, specify it with -OrganizationalUnitName as shown below. If you are using the OU DistinguishedName, you can set it with -OrganizationalUnitDistinguishedName. You can choose to provide one of the two names to specify the target OU.
@@ -175,7 +176,7 @@ foreach ($config in $azfilesconfig.azfilesconfig) {
         $scriptBlock = { .\psexec /accepteula -h -u $username -p $domainJoinPassword -c "powershell.exe" Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser -Force }
         Invoke-Command $scriptBlock -Verbose
 
-        LogInfo("Execution policy for the admin user set. Now joining the storage account through another PSExec command... This takes roughly 5 minutes")
+        LogInfo("Execution policy for the admin user set. Now joining the storage account through another PSExec command... This command takes roughly 5 minutes")
         $scriptBlock = { .\psexec /accepteula -h -u $username -p $domainJoinPassword -c "powershell.exe" "$scriptPath -S $StorageAccountName -RG $ResourceGroupName -U $AzureAdminUpn -P $AzureAdminPassword" }
         Invoke-Command $scriptBlock -Verbose
     
