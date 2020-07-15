@@ -14,10 +14,13 @@
 param(
 
     [Parameter(Mandatory = $true)]
-    [string] $username,
+    [string] $AzureAdminUpn,
 
     [Parameter(Mandatory = $true)]
-    [string] $password,
+    [string] $AzureAdminPassword,
+
+    [Parameter(Mandatory = $true)]
+    [string] $domainJoinPassword,
 
     $p = "",    
     [Hashtable] [Parameter(Mandatory = $false)]
@@ -152,6 +155,6 @@ else
 foreach ($scr in $PsScriptsToRun)
 {
     LogInfo "Running $($scr.FullName)"
-    & $scr.FullName -DynParameters $DynParameters -username $username -password $password
+    & $scr.FullName -DynParameters $DynParameters -AzureAdminUpn $AzureAdminUpn -AzureAdminPassword $AzureAdminPassword -domainJoinPassword $domainJoinPassword
 }
 LogInfo "Execution completed"

@@ -4,11 +4,14 @@ param (
     [Hashtable] $DynParameters,
 
     [Parameter(Mandatory = $false)]
-    [string] $username,
+    [string] $AzureAdminUpn,
 
     [Parameter(Mandatory = $false)]
-    [string] $password,
+    [string] $AzureAdminPassword,
 
+    [Parameter(Mandatory = $false)]
+    [string] $domainJoinPassword,
+    
     [Parameter(Mandatory = $false)]
     [ValidateNotNullOrEmpty()]
     [string] $ExecutableName = "npp.7.8.7.Installer.exe",

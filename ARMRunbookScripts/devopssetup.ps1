@@ -51,6 +51,13 @@ $CredentialAssetName = 'ServicePrincipalCred'
 $SPCredentials = Get-AutomationPSCredential -Name $CredentialAssetName
 
 #The name of the Automation Credential Asset this runbook will use to authenticate to Azure.
+$domainCredentialsAsset = 'domainJoinCredentials'
+
+#Authenticate Azure
+#Get the credential with the above name from the Automation Asset store
+$domainCredentials = Get-AutomationPSCredential -Name $domainCredentialsAsset
+
+#The name of the Automation Credential Asset this runbook will use to authenticate to Azure.
 $AzCredentialsAsset = 'AzureCredentials'
 
 #Authenticate Azure
@@ -304,11 +311,19 @@ write-output $body
 $response = Invoke-RestMethod -Method PATCH -Uri $url -Headers @{Authorization = "Basic $token"} -Body $body -ContentType "application/json"
 write-output $response
 
+# Create variable group that holds the Azure Credentials as variables
 $url = $("https://dev.azure.com/" + $orgName + "/" + $projectName + "/_apis/distributedtask/variablegroups?api-version=5.1-preview.1")
 write-output $url
 
+$SecurePassword = $AzCredentials.password
+
 $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($SecurePassword)
 $UnsecurePassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
+
+$DomainSecurePassword = $domainCredentials.password
+
+$BSTR2 = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($DomainSecurePassword)
+$DomainUnsecurePassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR2)
 
 $body = @"
 {
@@ -318,6 +333,10 @@ $body = @"
     },
     "azureAdminPassword": {
       "value": "$($UnsecurePassword)",
+      "isSecret": true
+    },
+    "domainJoinPassword": {
+      "value": "$($DomainUnsecurePassword),
       "isSecret": true
     }
   },
@@ -329,4 +348,28 @@ $body = @"
 write-output $body
 
 $response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Basic $token"} -Method Post -Body $Body -ContentType application/json
+write-output $response
+$variableGroupId = $response.id
+
+# Give pipeline permission to access the newly created variable group - Instead of the '1', could try 'WVDSecrets'
+$url = $("https://dev.azure.com/" + $orgName + "/" + $projectName + "/_apis/pipelines/pipelinePermissions/variablegroup/1?api-version=5.1-preview.1")
+write-output $url
+
+$body = @"
+{
+    "allPipelines": {
+        "authorized": true,
+        "authorizedBy": null,
+        "authorizedOn": null
+    },
+    "pipelines": null,
+    "resource": {
+        "id": "$($variableGroupId)",
+        "type": "variablegroup"
+    }
+}
+"@
+write-output $body
+
+$response = Invoke-RestMethod -Method PATCH -Uri $url -Headers @{Authorization = "Basic $token"} -Body $body -ContentType "application/json"
 write-output $response

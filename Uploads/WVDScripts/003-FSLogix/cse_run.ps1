@@ -8,10 +8,13 @@ param (
     [Hashtable] $DynParameters,
 
     [Parameter(Mandatory = $false)]
-    [string] $username,
+    [string] $AzureAdminUpn,
 
     [Parameter(Mandatory = $false)]
-    [string] $password,
+    [string] $AzureAdminPassword,
+
+    [Parameter(Mandatory = $false)]
+    [string] $domainJoinPassword,
     
     [Parameter(Mandatory = $false)]
     [ValidateNotNullOrEmpty()]

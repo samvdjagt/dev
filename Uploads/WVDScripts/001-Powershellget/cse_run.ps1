@@ -7,11 +7,14 @@ param (
     [Parameter(Mandatory = $false)]
     [Hashtable] $DynParameters,
 
-    [Parameter(Mandatory = $true)]
-    [string] $username,
+    [Parameter(Mandatory = $false)]
+    [string] $AzureAdminUpn,
 
-    [Parameter(Mandatory = $true)]
-    [string] $password
+    [Parameter(Mandatory = $false)]
+    [string] $AzureAdminPassword,
+
+    [Parameter(Mandatory = $false)]
+    [string] $domainJoinPassword
 )
 
 #####################################
@@ -122,8 +125,14 @@ LogInfo("##################")
 LogInfo("## 0 - EVALUATE ##")
 LogInfo("##################")
 
-$powershellgetPath = Join-Path $PSScriptRoot "Powershellget.2.2.4.1\powershellget.psd1"
-Import-Module -Name $powershellgetPath -Force
+LogInfo("Set execution policy...")
 
-LogInfo("Successfully imported powershellGet")
+#Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser -Force
 
+LogInfo("Execution policy set. Installing NuGet...")
+#Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+
+LogInfo("Installed NuGet. Update module PowershellGet...")
+#Install-Module -Name PowershellGet -MinimumVersion 2.2.4.1 -Force
+
+LogInfo("Successfully installed powershellGet")

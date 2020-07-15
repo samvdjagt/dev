@@ -8,10 +8,13 @@ param (
     [Hashtable] $DynParameters,
 
     [Parameter(Mandatory = $true)]
-    [string] $username,
+    [string] $AzureAdminUpn,
 
     [Parameter(Mandatory = $true)]
-    [string] $password,
+    [string] $AzureAdminPassword,
+
+    [Parameter(Mandatory = $true)]
+    [string] $domainJoinPassword,
     
     [Parameter(Mandatory = $false)]
     [ValidateNotNullOrEmpty()]
@@ -152,29 +155,33 @@ foreach ($config in $azfilesconfig.azfilesconfig) {
         LogInfo("Set execution policy...")
         
         #Change the execution policy to unblock importing AzFilesHybrid.psm1 module
-        Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser
+        Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser -Force
 
+        #cd $PSScriptRoot
+        #LogInfo("Current working directory: $PSScriptRoot")
         # Navigate to where AzFilesHybrid is unzipped and stored and run to copy the files into your path
-        .\CopyToPSPath.ps1 
+        #.\CopyToPSPath.ps1 
 
-        LogInfo("Import Az...")
-        Install-Module -Name Az
-        Import-Module -Name Az
+        #LogInfo("Install Az...")
+        #Install-Module -Name Az -Force
 
-        LogInfo("Import AzFilesHybrid module...")
-        Import-Module -Name AzFilesHybrid
+        #LogInfo("Import AzFilesHybrid module...")
+        #Import-Module -Name AzFilesHybrid -Force
 
-        LogInfo("Login with an Azure AD credential")
-        $Credential = New-Object System.Management.Automation.PsCredential($username, (ConvertTo-SecureString $password -AsPlainText -Force))
-        Connect-AzAccount -Credential $Credential
+        #LogInfo("Login with an Azure AD credential with $username and $password")
+        #$Credential = New-Object System.Management.Automation.PsCredential("admin@gt1027.onmicrosoft.com", (ConvertTo-SecureString "ReverseParol44" -AsPlainText -Force))
+        #Connect-AzAccount -Credential $Credential
 
         #Define parameters
         $SubscriptionId = $config.SubscriptionId
+        $SubscriptionId = $SubscriptionId.replace('"', "'")
         $ResourceGroupName = $config.ResourceGroupName
+        $ResourceGroupName = $ResourceGroupName.replace('"', "'")
         $StorageAccountName = $config.StorageAccountName
+        $StorageAccountName = $StorageAccountName.replace('"', "'")
 
-        LogInfo("Select the target subscription for the current session")
-        Select-AzSubscription -SubscriptionId $SubscriptionId 
+        #LogInfo("Select the target subscription for the current session")
+        #Select-AzSubscription -SubscriptionId $SubscriptionId 
 
         # Register the target storage account with your active directory environment under the target OU (for example: specify the OU with Name as "UserAccounts" or DistinguishedName as "OU=UserAccounts,DC=CONTOSO,DC=COM"). 
         # You can use to this PowerShell cmdlet: Get-ADOrganizationalUnit to find the Name and DistinguishedName of your target OU. If you are using the OU Name, specify it with -OrganizationalUnitName as shown below. If you are using the OU DistinguishedName, you can set it with -OrganizationalUnitDistinguishedName. You can choose to provide one of the two names to specify the target OU.
@@ -183,12 +190,14 @@ foreach ($config in $azfilesconfig.azfilesconfig) {
 
         LogInfo("Join-AzStorageAccountForAuth...")
 
-        Join-AzStorageAccountForAuth `
-                -ResourceGroupName $ResourceGroupName `
-                -StorageAccountName $StorageAccountName `
-                -DomainAccountType "ComputerAccount" `
-                -OrganizationalUnitName "Domain Controllers"
+        $username = $($config.domainName + "\" + $config.domainJoinUsername)
+        $scriptPath = $($PSScriptRoot + "\azfilesEnablement.ps1")
+        $scriptBlock = { .\psexec /accepteula -h -u $username -p $domainJoinPassword -c "powershell.exe" "$scriptPath -SubscriptionId $SubscriptionId -StorageAccountName $StorageAccountName -ResourceGroupName $ResourceGroupName -AzureAdminUpn $AzureAdminUpn -AzureAdminPassword $AzureAdminPassword" }
+        Invoke-Command $scriptBlock -Verbose
+        #.\psexec -h -c "powershell.exe" -accepteula -u "gt1027\ssa" -p $password -arguments "Join-AzStorageAccountForAuth -ResourceGroupName $ResourceGroupName -StorageAccountName $StorageAccountName -DomainAccountType 'ComputerAccount' -OrganizationalUnitName 'Domain Controllers'"
+        #Start-Process "ntrights.exe" -ArgumentList "+r SeImpersonatePrivilege -u gt1027\ssa"
+        #Start-Process "powershell.exe" -Credential $adminCredential -ArgumentList "-Command & {$ScriptBlock Join}"
     
-        LogInfo("Az files enabled!")
+        #LogInfo("Az files enabled!")
     }
 }

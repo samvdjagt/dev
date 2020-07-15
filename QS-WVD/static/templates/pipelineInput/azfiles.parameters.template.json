@@ -4,7 +4,9 @@
             "enableAzureFiles": true,
             "SubscriptionId": "[subscriptionId]",
             "ResourceGroupName": "[wvdMgmtResourceGroupName]",
-            "StorageAccountName": "[profilesStorageAccountName]"
+            "StorageAccountName": "[profilesStorageAccountName]",
+            "domainName": "[domainName]",
+            "domainJoinUsername": "[adminUsername]"
         }
     ]
 }
