@@ -72,7 +72,7 @@
                 "settings": {
                     "wmfVersion": "latest",
                     "configuration": {
-                        "url": "https://wvdportalstorageblob.blob.core.windows.net/galleryartifacts/Configuration.zip",
+                        "url": "https://raw.githubusercontent.com/Azure/RDS-Templates/test_wvd_springUpdate_template/spring20-wvd-templates/DSC/Configuration.zip",
                         "script": "Configuration.ps1",
                         "function": "AddSessionHost"
                     },
