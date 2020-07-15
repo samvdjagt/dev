@@ -48,3 +48,4 @@ if ($context -eq $null)
 # Grant managed identity contributor role on subscription level
 $identity = Get-AzUserAssignedIdentity -ResourceGroupName $ResourceGroupName -Name "WVDServicePrincipal"
 New-AzRoleAssignment -RoleDefinitionName "Contributor" -ObjectId $identity.PrincipalId
+Start-Sleep -Seconds 10
