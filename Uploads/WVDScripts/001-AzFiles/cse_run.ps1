@@ -179,7 +179,7 @@ foreach ($config in $azfilesconfig.azfilesconfig) {
         LogInfo("Azure Files Enabled!")
 
         LogInfo("Setting fReverseConnectMode registry key...")
-        New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\rdp-sxs" -Name "fReverseConnectMode" -Value 1 -PropertyType "DWord" -Force
+        #New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\rdp-sxs" -Name "fReverseConnectMode" -Value 1 -PropertyType "DWord" -Force
         LogInfo("fReverseConnectMode registry key set.")
     }
 }
