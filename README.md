@@ -6,7 +6,7 @@ By clicking the "Deploy to Azure" button, you will be taken to the Azure Portal 
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https:%2F%2Fraw.githubusercontent.com%2Fsamvdjagt%2Fdev%2Fmaster%2Fdeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
-</a>
+</a><br>
 
 
 Once the deployment completes, please navigate to https://dev.azure.com, where you will find the WVD Quickstart project. Navigate to the "pipelines" section - Here you'll find a running pipeline that deploys a WVD environment (VMs, host pool, desktop app group, FSLogix configuration) for you. Upon completion of this pipeline, which will take about 15 minutes, your WVD environment is ready for use!
