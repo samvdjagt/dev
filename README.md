@@ -13,7 +13,7 @@ Once the deployment completes, please navigate to https://dev.azure.com, where y
 
 The Quickstart creates a test user for you to try out the environment. Navigate to https://rdweb.wvd.microsoft.com/arm/webclient/index.html and login with the following test user credentials:
 
-Username: WVDTestUser001@<your-domain>.com
+Username: WVDTestUser001@{your-domain}.com <br>
 Password: wvdTest123!
 
 
