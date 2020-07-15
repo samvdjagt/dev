@@ -181,8 +181,8 @@ foreach ($config in $azfilesconfig.azfilesconfig) {
         Invoke-Command $scriptBlock -Verbose
     
         LogInfo("Azure files enabled!")
-        LogInfo("Setting 'fReverseConnectMode' registry key...")
+        LogInfo("Setting fReverseConnectMode registry key...")
         New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\rdp-sxs\fReverseConnectMode" -Value 1 -PropertyType "DWord" –Force
-        LogInfo("Successfully set 'fReverseConnectMode' registry key")
+        LogInfo("Successfully set fReverseConnectMode registry key")
     }
 }
