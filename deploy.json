@@ -378,7 +378,7 @@
                 }
             },
             "dependsOn": [
-               "[concat('Microsoft.Resources/deploymentScripts', '/checkAzureCredentials')]"
+               
             ],
             "resources": [
             ]
@@ -405,7 +405,7 @@
               "accountName": "[variables('devOpsName')]"
             },
             "dependsOn": [
-                "[concat('Microsoft.Resources/deploymentScripts', '/checkAzureCredentials')]"
+                
             ],
             "resources": []
         },
@@ -430,32 +430,6 @@
                 "arguments": "[concat(variables('devOpsName'), ' ', variables('devOpsProjectName'), ' ', parameters('azureAdminUpn'), ' ', parameters('azureAdminPassword'), ' ', 'true')]",
                 "primaryScriptUri": "[concat(variables('_artifactsLocation'),'/ARMRunbookScripts/createDevopsPipeline.sh')]",
                 "timeout": "PT30M",
-                "cleanupPreference": "OnSuccess",
-                "retentionInterval": "P1D"
-            }
-        },
-        {
-            "type": "Microsoft.Resources/deploymentScripts",
-            "apiVersion": "2019-10-01-preview",
-            "name": "checkAzureCredentials",
-            "location": "[variables('location')]",
-            "dependsOn": [
-                "[concat('Microsoft.ManagedIdentity/userAssignedIdentities/', variables('identityName'))]",
-                "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'), '/jobs/', variables('newGuid0'))]"
-            ],
-            "kind": "AzureCLI",
-            "identity": {
-                "type": "UserAssigned",
-                "userAssignedIdentities": {
-                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities/', variables('identityName'))]": {}
-                }
-            },
-            "properties": {
-                "forceUpdateTag": 1,
-                "azCliVersion": "2.0.80",
-                "timeout": "PT30M",
-                "arguments": "[concat(variables('devOpsName'), ' ', variables('devOpsProjectName'), ' ', parameters('azureAdminUpn'), ' ', parameters('azureAdminPassword'), ' ', 'false')]",
-                "primaryScriptUri": "[concat(variables('_artifactsLocation'),'/ARMRunbookScripts/createDevopsPipeline.sh')]",
                 "cleanupPreference": "OnSuccess",
                 "retentionInterval": "P1D"
             }
