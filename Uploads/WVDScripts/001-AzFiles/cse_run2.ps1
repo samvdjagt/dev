@@ -7,7 +7,7 @@ param (
     [Parameter(Mandatory = $false)]
     [Hashtable] $DynParameters,
 
-    [Parameter(Mandatory = $true)]
+    [Parameter(Mandatory = $false)]
     [string] $AzureAdminUpn,
 
     [Parameter(Mandatory = $true)]
@@ -140,26 +140,21 @@ catch {
 }
 
 LogInfo("##################")
-LogInfo("## 0 - EVALUATE ##")
+LogInfo("## 1 - EVALUATE ##")
 LogInfo("##################")
 foreach ($config in $azfilesconfig.azfilesconfig) {
-    
     if ($config.enableAzureFiles) {
         LogInfo("############################")
-        LogInfo("## 1 - Enable Azure Files ##")
+        LogInfo("## 2 - Enable Azure Files ##")
         LogInfo("############################")
-        LogInfo("Trigger user group creation")
-
-        LogInfo("Set execution policy...")
         
+        LogInfo("Set Execution Policy...")
         #Change the execution policy to unblock importing AzFilesHybrid.psm1 module
         Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser -Force
 
         #Define parameters
         $ResourceGroupName = $config.ResourceGroupName
-        $ResourceGroupName = $ResourceGroupName.replace('"', "'")
         $StorageAccountName = $config.StorageAccountName
-        $StorageAccountName = $StorageAccountName.replace('"', "'")
 
         # Register the target storage account with your active directory environment under the target OU (for example: specify the OU with Name as "UserAccounts" or DistinguishedName as "OU=UserAccounts,DC=CONTOSO,DC=COM"). 
         # You can use to this PowerShell cmdlet: Get-ADOrganizationalUnit to find the Name and DistinguishedName of your target OU. If you are using the OU Name, specify it with -OrganizationalUnitName as shown below. If you are using the OU DistinguishedName, you can set it with -OrganizationalUnitDistinguishedName. You can choose to provide one of the two names to specify the target OU.
@@ -170,8 +165,7 @@ foreach ($config in $azfilesconfig.azfilesconfig) {
         $username = $($split[0] + "\" + $config.domainJoinUsername)
         $scriptPath = $($PSScriptRoot + "\setup.ps1")
         Set-Location $PSScriptRoot
-        LogInfo("Current working directory: $PSScriptroot")
-        
+
         LogInfo("Using PSExec, set execution policy for the admin user")
         $scriptBlock = { .\psexec /accepteula -h -u $username -p $domainJoinPassword -c "powershell.exe" Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser -Force }
         Invoke-Command $scriptBlock -Verbose
@@ -179,10 +173,11 @@ foreach ($config in $azfilesconfig.azfilesconfig) {
         LogInfo("Execution policy for the admin user set. Now joining the storage account through another PSExec command... This command takes roughly 5 minutes")
         $scriptBlock = { .\psexec /accepteula -h -u $username -p $domainJoinPassword -c "powershell.exe" "$scriptPath -S $StorageAccountName -RG $ResourceGroupName -U $AzureAdminUpn -P $AzureAdminPassword" }
         Invoke-Command $scriptBlock -Verbose
-    
-        LogInfo("Azure files enabled!")
+
+        LogInfo("Azure Files Enabled!")
+
         LogInfo("Setting fReverseConnectMode registry key...")
-        New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\rdp-sxs\fReverseConnectMode" -Value 1 -PropertyType "DWord" –Force
-        LogInfo("Successfully set fReverseConnectMode registry key")
+        New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\rdp-sxs\fReverseConnectMode" -Value 1 -PropertyType "Dword" -Force
+        LogInfo("fReverseConnectMode registry key set.")
     }
 }
