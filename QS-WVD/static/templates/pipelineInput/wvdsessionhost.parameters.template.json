@@ -72,7 +72,7 @@
                 "settings": {
                     "wmfVersion": "latest",
                     "configuration": {
-                        "url": "https://raw.githubusercontent.com/Azure/RDS-Templates/test_wvd_springUpdate_template/spring20-wvd-templates/DSC/Configuration.zip",
+                        "url": "https://github.com/samvdjagt/dev/raw/master/Uploads/Configuration.zip",
                         "script": "Configuration.ps1",
                         "function": "AddSessionHost"
                     },
