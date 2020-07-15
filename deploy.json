@@ -80,8 +80,8 @@
         "scriptUri0": "[concat(variables('_artifactsLocation'),'/ARMRunbookScripts/configureMSI.ps1')]",
         "scriptUri1": "[concat(variables('_artifactsLocation'),'/ARMRunbookScripts/createServicePrincipal.ps1')]",
         "scriptUri2": "[concat(variables('_artifactsLocation'),'/ARMRunbookScripts/devopssetup.ps1')]",
-        "devOpsName": "WVDQuickstart28",   
-        "devOpsProjectName": "WVDQuickstartProject28",
+        "devOpsName": "WVDQuickstartOrg",   
+        "devOpsProjectName": "WVDQuickstartProj",
         "targetGroup": "WVDTestUsers",
         "automationVariables": [
             {
