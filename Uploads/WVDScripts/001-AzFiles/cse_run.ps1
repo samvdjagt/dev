@@ -154,7 +154,9 @@ foreach ($config in $azfilesconfig.azfilesconfig) {
 
         #Define parameters
         $ResourceGroupName = $config.ResourceGroupName
+        $ResourceGroupName = $ResourceGroupName.Replace('"', "'")
         $StorageAccountName = $config.StorageAccountName
+        $StorageAccountName = $StorageAccountName.Replace('"', "'")
 
         # Register the target storage account with your active directory environment under the target OU (for example: specify the OU with Name as "UserAccounts" or DistinguishedName as "OU=UserAccounts,DC=CONTOSO,DC=COM"). 
         # You can use to this PowerShell cmdlet: Get-ADOrganizationalUnit to find the Name and DistinguishedName of your target OU. If you are using the OU Name, specify it with -OrganizationalUnitName as shown below. If you are using the OU DistinguishedName, you can set it with -OrganizationalUnitDistinguishedName. You can choose to provide one of the two names to specify the target OU.
