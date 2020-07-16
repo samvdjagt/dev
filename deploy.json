@@ -443,7 +443,7 @@
                 "[concat('Microsoft.ManagedIdentity/userAssignedIdentities/', variables('identityName'))]",
                 "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'), '/jobs/', variables('newGuid0'))]"
             ],
-            "kind": "AzureCLI",
+            "kind": "AzurePowerShell",
             "identity": {
                 "type": "UserAssigned",
                 "userAssignedIdentities": {
@@ -452,10 +452,10 @@
             },
             "properties": {
                 "forceUpdateTag": 1,
-                "azCliVersion": "2.0.80",
+                "azPowerShellVersion": "3.0",
                 "timeout": "PT30M",
-                "arguments": "[concat(variables('devOpsName'), ' ', variables('devOpsProjectName'), ' ', parameters('azureAdminUpn'), ' ', parameters('azureAdminPassword'), ' ', 'false')]",
-                "primaryScriptUri": "[concat(variables('_artifactsLocation'),'/ARMRunbookScripts/createDevopsPipeline.sh')]",
+                "arguments": "[concat('-username ', parameters('azureAdminUpn'), ' -password ', parameters('azureAdminPassword'))]",
+                "primaryScriptUri": "[concat(variables('_artifactsLocation'),'/ARMRunbookScripts/checkAzureCredentials.ps1')]",
                 "cleanupPreference": "OnSuccess",
                 "retentionInterval": "P1D"
             }
