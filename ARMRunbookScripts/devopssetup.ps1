@@ -191,6 +191,7 @@ $split = $tenantAdminDomainJoinUPN.Split("@")
 $domainUsername = $split[0]
 $domainName = $split[1]
 
+# In case AADDS is used, create a new user here, and assign it to the targetGroup. The principalID of this group will then be used.
 if ($identitySolution -eq 'AADDS') {
   $url = $($fileURI + "/Modules/ARM/UserCreation/Parameters/users.parameters.json")
   Invoke-WebRequest -Uri $url -OutFile "C:\users.parameters.json"
@@ -212,6 +213,9 @@ if ($identitySolution -eq 'AADDS') {
 }
 
 $principalIds = (Get-AzureADGroup -SearchString $targetGroup).objectId
+# In case the above search finds multiple groups, pick the first PrincipalId. Template only works when one principalId is supplied, not for multiple.
+$split = $principalIds.Split(' ')
+$principalIds = $split[0]
 Write-Output "Found user group $targetGroup with principal Id $principalIds"
 
 # Get ID of the commit we just pushed, needed for the next commit below

@@ -4,6 +4,9 @@
     "parameters": {
         "utcValue": {
             "type": "string",
+            "metadata": {
+                "description": "Please leave this value as '[utcNow()]', as this is used to generate unique names in the deployment. This is a requirement for resources like a keyvault or storage account."
+            },
             "defaultValue": "[utcNow()]"
         },
         "existingVnetName": {
@@ -87,7 +90,6 @@
         "autoAccountName": "[concat('auto', toLower(parameters('utcValue')))]",
         "uniquestr": "[uniqueString(resourceGroup().id, deployment().name)]",
         "runbookName": "[concat('wvdrunbook','-',variables('uniquestr'))]",
-        "subnet-id": "[resourceId(parameters('virtualNetworkResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('existingVnetName'), parameters('existingSubnetName'))]",
         "tenantId": "[subscription().tenantId]",
         "uniqueBase0": "[toLower(uniquestring(variables('identityName'), resourceGroup().id, parameters('utcValue'),'MSISetup'))]",
         "uniqueBase": "[toLower(uniquestring(variables('identityName'), resourceGroup().id, parameters('utcValue'),variables('autoAccountName')))]",
@@ -199,22 +201,6 @@
             "properties": {}
         },
         {
-            "type": "Microsoft.Automation/automationAccounts/variables",
-            "apiVersion": "2015-10-31",
-            "name": "[concat(variables('autoAccountName'), '/', variables('automationVariables')[copyIndex()].name)]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Automation/automationAccounts', variables('autoAccountName'))]"
-            ],
-            "tags": {},
-            "properties": {
-                "value": "[variables('automationVariables')[copyIndex()].value]"
-            },
-            "copy": {
-                "name": "variableLoop",
-                "count": "[length(variables('automationVariables'))]"
-            }
-        },
-        {
             "type": "Microsoft.Automation/automationAccounts",
             "apiVersion": "2015-01-01-preview",
             "name": "[variables('autoAccountName')]",
@@ -228,6 +214,34 @@
                 }
             },
             "resources": [
+                {
+                    "type": "credentials",
+                    "apiVersion": "2015-01-01-preview",
+                    "name": "AzureCredentials",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'))]"
+                    ],
+                    "tags": {},
+                    "properties": {
+                        "userName": "[parameters('azureAdminUpn')]",
+                        "password": "[parameters('azureAdminPassword')]"
+                    }
+                },
+                {
+                    "type": "credentials",
+                    "apiVersion": "2015-01-01-preview",
+                    "name": "domainJoinCredentials",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'))]"
+                    ],
+                    "tags": {},
+                    "properties": {
+                        "userName": "[parameters('tenantAdminDomainJoinUPN')]",
+                        "password": "[parameters('tenantAdminDomainJoinPassword')]"
+                    }
+                },
                 {
                     "type": "runbooks",
                     "apiVersion": "2015-01-01-preview",
@@ -286,34 +300,6 @@
                             "uri": "[variables('scriptUri1')]",
                             "version": "1.0.0.0"
                         }
-                    }
-                },
-                {
-                    "type": "credentials",
-                    "apiVersion": "2015-01-01-preview",
-                    "name": "AzureCredentials",
-                    "location": "[resourceGroup().location]",
-                    "dependsOn": [
-                        "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'))]"
-                    ],
-                    "tags": {},
-                    "properties": {
-                        "userName": "[parameters('azureAdminUpn')]",
-                        "password": "[parameters('azureAdminPassword')]"
-                    }
-                },
-                                {
-                    "type": "credentials",
-                    "apiVersion": "2015-01-01-preview",
-                    "name": "domainJoinCredentials",
-                    "location": "[resourceGroup().location]",
-                    "dependsOn": [
-                        "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'))]"
-                    ],
-                    "tags": {},
-                    "properties": {
-                        "userName": "[parameters('tenantAdminDomainJoinUPN')]",
-                        "password": "[parameters('tenantAdminDomainJoinPassword')]"
                     }
                 },
                 {
@@ -379,6 +365,22 @@
                     }
                 }
             ]
+        },
+        {
+            "type": "Microsoft.Automation/automationAccounts/variables",
+            "apiVersion": "2015-10-31",
+            "name": "[concat(variables('autoAccountName'), '/', variables('automationVariables')[copyIndex()].name)]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', variables('autoAccountName'))]"
+            ],
+            "tags": {},
+            "properties": {
+                "value": "[variables('automationVariables')[copyIndex()].value]"
+            },
+            "copy": {
+                "name": "variableLoop",
+                "count": "[length(variables('automationVariables'))]"
+            }
         },
         {
             "type": "Microsoft.KeyVault/vaults",
