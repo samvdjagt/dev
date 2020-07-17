@@ -205,7 +205,7 @@ if ($identitySolution -eq 'AADDS') {
     $userName = $config.userName
     $upn = $($userName + "@" + $domainName)
       if ($config.createGroup) { New-AzADGroup -DisplayName "$targetGroup" -MailNickname "$targetGroup" }
-      if ($config.createUser) { New-AzADUser -UserPrincipalName $upn -Name "$userName" -MailNickname $userName -Password (convertto-securestring $config.password -AsPlainText -Force) }
+      if ($config.createUser) { New-AzADUser -UserPrincipalName $upn -DisplayName "$userName" -MailNickname $userName -Password (convertto-securestring $config.password -AsPlainText -Force) }
       if ($config.assignUsers) { Add-AzADGroupMember -MemberUserPrincipalName  $upn -TargetGroupDisplayName $targetGroup }
       Start-Sleep -Seconds 1
   }
