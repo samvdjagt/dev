@@ -43,6 +43,12 @@
             "metadata": {
                 "description": "Name of Managed identity used to run this script."
             }
+        },
+        "virtualNetworkResourceGroupName": {
+            "type": "string",
+            "metadata": {
+                "description": "Resource group in which the existing VNET is."
+            }
         }
     },
     "resources": [
@@ -50,6 +56,7 @@
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "apiVersion": "2019-12-01",
             "name": "[concat(parameters('computerName'),'/', 'userCreation')]",
+            "resourceGroup": "[parameters('virtualNetworkResourceGroupName')]",
             "location": "[resourcegroup().location]",
             "dependsOn": [
             ],

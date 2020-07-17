@@ -43,6 +43,12 @@
             "metadata": {
                 "description": "Name of Managed identity used to run this script."
             }
+        },
+        "virtualNetworkResourceGroupName": {
+            "type": "string",
+            "metadata": {
+                "description": "Resource group in which the existing VNET is."
+            }
         }
     },
     "resources": [

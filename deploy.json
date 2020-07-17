@@ -493,7 +493,6 @@
                 "[concat('Microsoft.ManagedIdentity/userAssignedIdentities/', variables('identityName'))]",
                 "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'), '/jobs/', variables('newGuid0'))]"
             ],
-            "resourceGroup": "[parameters('virtualNetworkResourceGroupName')]",
             "subscriptionId": "[subscription().subscriptionId]",
             "properties": {
                 "mode": "Incremental",
@@ -508,7 +507,8 @@
                 "targetGroup":{"value": "[variables('targetGroup')]"},
                 "identityName":{"value": "[variables('identityName')]"},
                 "azureAdminUpn":{"value": "[parameters('azureAdminUpn')]"},
-                "azureAdminPassword":{"value": "[parameters('azureAdminPassword')]"}
+                "azureAdminPassword":{"value": "[parameters('azureAdminPassword')]"},
+                "virtualNetworkResourceGroupName":{"value": "[parameters('virtualNetworkResourceGroupName')]"}
                 }
             }
         }
