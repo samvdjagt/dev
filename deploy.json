@@ -365,7 +365,7 @@
                         "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'), '/runbooks/',variables('runbookName'), '2')]",
                         "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'), '/jobs/', variables('newGuid0'))]",
                         "[concat('microsoft.visualstudio/account/', variables('devOpsName'))]",
-                        "[concat('Microsoft.Resources/Deployments/CreateUsers')]"
+                        "[concat('Microsoft.Resources/Deployments/userCreation')]"
                     ],
                     "tags": {
                         "key": "value"
