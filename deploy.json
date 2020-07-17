@@ -28,7 +28,8 @@
             "type": "string",
             "metadata": {
                 "description": "The name of the VM with the domain controller."
-            }
+            },
+            "defaultValue": ""
         },
         "azureAdminUpn": {
             "type": "string",

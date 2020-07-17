@@ -180,27 +180,7 @@ foreach ($config in $azfilesconfig.azfilesconfig) {
             LogInfo("Azure Files Enabled!")
         }
         elseif ($config.identitySolution -eq "AADDS") {
-            LogInfo("############################")
-            LogInfo("## 2 - Enable Azure Files ##")
-            LogInfo("############################")
-            
-            LogInfo("Set Execution Policy...")
-            Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser -Force
-
-            LogInfo("Install module Az...")
-            Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
-            Install-Module -Name PowershellGet -MinimumVersion 2.2.4.1 -Force
-            Install-Module Az -Force
-
-            LogInfo("Connect to Azure...")
-            $credential = New-Object System.Management.Automation.PsCredential($AzureAdminUpn, (ConvertTo-SecureString $AzureAdminPassword -AsPlainText -Force))
-            Connect-AzAccount -Credential $credential
-            $context = Get-AzContext
-            Select-AzSubscription -SubscriptionId $context.Subscription.Id
-
-            LogInfo("Set AzStorageAccount AADDS switch...")
-            Set-AzStorageAccount -ResourceGroupName $ResourceGroupName -Name $StorageAccountName -EnableAzureActiveDirectoryDomainServicesForFile $true
-            LogInfo("Azure files enabled!")
+            LogInfo("AADDS is used, for which the storage account has been enabled in the DevOps pipeline. No further action is needed in this Custom Script Extension")
         }
     }
 }
