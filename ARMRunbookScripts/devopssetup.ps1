@@ -192,7 +192,7 @@ $domainUsername = $split[0]
 $domainName = $split[1]
 
 if ($identitySolution -eq 'AADDS') {
-  $url = $($artifactsLocation + "/Modules/ARM/UserCreation/Parameters/users.parameters.json")
+  $url = $($fileURI + "/Modules/ARM/UserCreation/Parameters/users.parameters.json")
   Invoke-WebRequest -Uri $url -OutFile "C:\users.parameters.json"
   $ConfigurationJson = Get-Content -Path "C:\users.parameters.json" -Raw -ErrorAction 'Stop'
 
