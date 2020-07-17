@@ -493,7 +493,6 @@
                 "[concat('Microsoft.ManagedIdentity/userAssignedIdentities/', variables('identityName'))]",
                 "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'), '/jobs/', variables('newGuid0'))]"
             ],
-            "subscriptionId": "[subscription().subscriptionId]",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {

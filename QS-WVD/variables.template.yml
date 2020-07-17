@@ -167,6 +167,6 @@ variables:
 
 ## IdentityApproach (AD or AADDS)
 - name: identitySolution
-  value: "AD"
+  value: "[identitySolution]"
 
 #endregion
