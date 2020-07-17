@@ -6,8 +6,8 @@ param(
 	[string] [Parameter(Mandatory=$true)] $artifactsLocation 
 )
 
-Install-Module AzureAD -Force
-Import-Module AzureAD -Force
+#Install-Module AzureAD -Force
+#Import-Module AzureAD -Force
 
 $url = $($artifactsLocation + "/Modules/ARM/UserCreation/Parameters/users.parameters.json")
 $response = Invoke-WebRequest -Uri $url
@@ -20,8 +20,8 @@ catch {
 
 $ErrorActionPreference = 'Stop'
 
-$Credential = New-Object System.Management.Automation.PsCredential($username, (ConvertTo-SecureString $password -AsPlainText -Force))
-Connect-AzureAD -AzureEnvironmentName 'AzureCloud' -Credential $Credential
+#$Credential = New-Object System.Management.Automation.PsCredential($username, (ConvertTo-SecureString $password -AsPlainText -Force))
+#Connect-AzureAD -AzureEnvironmentName 'AzureCloud' -Credential $Credential
 
 foreach ($config in $UserConfig.userconfig) {
 	$userName = $config.userName
