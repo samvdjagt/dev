@@ -67,8 +67,9 @@
         "optionalNotificationEmail": {
             "type": "string",
             "metadata": {
-                "description": "If desired, you can provide an email address to which we'll send a notification once your WVD deployment completes."
-            }
+                "description": "If desired, you can provide an email address to which we'll send a notification once your WVD deployment completes. DevOps will, by default, attempt to send an email to your Azure account, regardless of whether you provide a value here."
+            },
+            "defaultValue": "[parameters('azureAdminUpn')]"
         }
     },
     "variables": {

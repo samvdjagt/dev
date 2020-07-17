@@ -188,6 +188,8 @@ foreach ($config in $azfilesconfig.azfilesconfig) {
             Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser -Force
 
             LogInfo("Install module Az...")
+            Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+            Install-Module -Name PowershellGet -MinimumVersion 2.2.4.1 -Force
             Install-Module Az -Force
 
             LogInfo("Connect to Azure...")
