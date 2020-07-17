@@ -6,8 +6,7 @@ param(
 	[string] [Parameter(Mandatory=$true)] $artifactsLocation 
 )
 
-Install-Module AzureAD
-Import-Module AzureAD
+Install-Module AzureAD -Force
 
 $url = $($artifactsLocation + "Modules/ARM/UserCreation/Parameters/users.parameters.json")
 $response = Invoke-WebRequest -Uri $url
