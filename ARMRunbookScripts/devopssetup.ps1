@@ -191,6 +191,26 @@ $split = $tenantAdminDomainJoinUPN.Split("@")
 $domainUsername = $split[0]
 $domainName = $split[1]
 
+if ($identitySolution -eq 'AADDS') {
+  $url = $($artifactsLocation + "/Modules/ARM/UserCreation/Parameters/users.parameters.json")
+  Invoke-WebRequest -Uri $url -OutFile "C:\users.parameters.json"
+  $ConfigurationJson = Get-Content -Path "C:\users.parameters.json" -Raw -ErrorAction 'Stop'
+
+  try { $UserConfig = $ConfigurationJson | ConvertFrom-Json -ErrorAction 'Stop' }
+  catch {
+    Write-Error "Configuration JSON content could not be converted to a PowerShell object" -ErrorAction 'Stop'
+  }
+
+  foreach ($config in $UserConfig.userconfig) {
+    $userName = $config.userName
+    $upn = $($userName + "@" + $domainName)
+      if ($config.createGroup) { New-AzADGroup -DisplayName "$targetGroup" -MailNickname "$targetGroup" }
+      if ($config.createUser) { New-AzADUser -UserPrincipalName $upn -Name "$userName" -MailNickname $userName -Password (convertto-securestring $config.password -AsPlainText -Force) }
+      if ($config.assignUsers) { Add-AzADGroupMember -MemberUserPrincipalName  $upn -TargetGroupDisplayName $targetGroup }
+      Start-Sleep -Seconds 1
+  }
+}
+
 $principalIds = (Get-AzureADGroup -SearchString $targetGroup).objectId
 Write-Output "Found user group $targetGroup with principal Id $principalIds"
 
