@@ -2,6 +2,7 @@
     "azfilesconfig": [
         {
             "enableAzureFiles": true,
+            "identitySolution": "[identitySolution]", 
             "SubscriptionId": "[subscriptionId]",
             "ResourceGroupName": "[wvdMgmtResourceGroupName]",
             "StorageAccountName": "[profilesStorageAccountName]",

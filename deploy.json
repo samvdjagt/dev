@@ -53,6 +53,22 @@
             "metadata": {
                 "description": "The password that corresponds to the tenant admin UPN."
             }
+        },
+        "identitySolution": {
+            "type": "string",
+            "metadata": {
+                "description": "Specify which identity solution you would like to use for your WVD deployment. Pick either AD (Active Directory Domain Services) or AADDS (Azure Active Directory Domain Services)"
+            },
+            "allowedValues": [
+                "AD",
+                "AADDS"
+            ]
+        },
+        "optionalNotificationEmail": {
+            "type": "string",
+            "metadata": {
+                "description": "If desired, you can provide an email address to which we'll send a notification once your WVD deployment completes."
+            }
         }
     },
     "variables": {
@@ -159,6 +175,14 @@
             {
                 "name": "targetGroup",
                 "value": "[concat('\"', variables('targetGroup'),'\"')]"
+            },
+            {
+                "name": "identitySolution",
+                "value": "[concat('\"',parameters('identitySolution'),'\"')]"
+            },
+            {
+                "name": "notificationEmail",
+                "value": "[concat('\"',parameters('optionalNotificationEmail'),'\"')]"
             }
         ]   
     },
@@ -463,7 +487,7 @@
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
-            "name": "userCreation",
+            "name": "linkedTemplate",
             "dependsOn": [
                 "[concat('Microsoft.ManagedIdentity/userAssignedIdentities/', variables('identityName'))]",
                 "[concat('Microsoft.Automation/automationAccounts/', variables('autoAccountName'), '/jobs/', variables('newGuid0'))]"
@@ -471,36 +495,20 @@
             "resourceGroup": "[parameters('virtualNetworkResourceGroupName')]",
             "subscriptionId": "[subscription().subscriptionId]",
             "properties": {
-            "mode": "Incremental",
-            "template": {
-                "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-                "contentVersion": "1.0.0.0",
-                "parameters": {},
-                "variables": {},
-                "resources": [
-                {
-                    "type": "Microsoft.Compute/virtualMachines/extensions",
-                    "apiVersion": "2019-12-01",
-                    "name": "[concat(parameters('computerName'),'/', 'userCreation')]",
-                    "location": "[resourcegroup().location]",
-                    "dependsOn": [
-                    ],
-                    "properties": {
-                        "publisher": "Microsoft.Compute",
-                        "type": "CustomScriptExtension",
-                        "typeHandlerVersion": "1.7",
-                        "autoUpgradeMinorVersion": true,
-                        "settings": {
-                            "fileUris": [
-                                "[concat(variables('_artifactsLocation'), '/Uploads/createUsers.ps1')]"
-                            ],
-                            "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Unrestricted -File createUsers.ps1 ', variables('existingDomainName'), ' ', variables('targetGroup'))]"
-                        }
-                    }
+                "mode": "Incremental",
+                "templateLink": {
+                "uri":"[concat(variables('_artifactsLocation'),'/Modules/ARM/UserCreation/', parameters('identitySolution'), 'deploy.json')]",
+                "contentVersion":"1.0.0.0"
+                },
+                "parameters": {
+                "computerName":{"value": "[parameters('computerName')]"},
+                "_artifactsLocation":{"value": "[variables('_artifactsLocation')]"},
+                "existingDomainName":{"value": "[variables('existingDomainName')]"},
+                "targetGroup":{"value": "[variables('targetGroup')]"},
+                "identityName":{"value": "[variables('identityName')]"},
+                "azureAdminUpn":{"value": "[parameters('azureAdminUpn')]"},
+                "azureAdminPassword":{"value": "[parameters('azureAdminPassword')]"}
                 }
-                ]
-            },
-            "parameters": {}
             }
         }
     ],

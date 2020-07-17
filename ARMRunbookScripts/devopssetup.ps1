@@ -19,6 +19,7 @@ $existingVnetName = Get-AutomationVariable -Name 'existingVnetName'
 $computerName = Get-AutomationVariable -Name 'computerName'
 $targetGroup = Get-AutomationVariable -Name 'targetGroup'
 $AutomationAccountName = Get-AutomationVariable -Name 'AccountName'
+$identitySolution = Get-AutomationVariable -Name 'identitySolution'
 
 # Download files required for this script from github ARMRunbookScripts/static folder
 $FileNames = "msft-wvd-saas-api.zip,msft-wvd-saas-web.zip,AzureModules.zip"
@@ -189,6 +190,7 @@ start-sleep -Seconds 20
 $split = $tenantAdminDomainJoinUPN.Split("@")
 $domainUsername = $split[0]
 $domainName = $split[1]
+
 $principalIds = (Get-AzureADGroup -SearchString $targetGroup).objectId
 Write-Output "Found user group $targetGroup with principal Id $principalIds"
 
@@ -214,6 +216,7 @@ $content = $content.Replace("[wvdAssetsStorage]", $wvdAssetsStorage)
 $content = $content.Replace("[resourceGroupName]", $ResourceGroupName)
 $content = $content.Replace("[profilesStorageAccountName]", $profilesStorageAccountName)
 $content = $content.Replace("[autoAccountName]", $AutomationAccountName)
+$content = $content.Replace("[identitySolution]", $identitySolution)
 $content = $content.Replace('"', '')
 write-output $content
 
@@ -240,6 +243,7 @@ $parameters = $parameters.Replace("[profilesName]", $profilesStorageAccountName)
 $parameters = $parameters.Replace("[resourceGroupName]", $ResourceGroupName)
 $parameters = $parameters.Replace("[principalIds]", $principalIds)
 $parameters = $parameters.Replace("[targetGroup]", $targetGroup)
+$parameters = $parameters.Replace("[identitySolution]", $identitySolution)
 $parameters = $parameters.Replace('"', "'")
 write-output $parameters
 

@@ -82,7 +82,7 @@
 
     # Authentication related
     # ==================== #
-    identityApproach                      = "AD" # (AD or AADDS)                # default for now, could become user input
+    identitySolution                      = "[identitySolution]" # (AD or AADDS)                # user input
     
     # Only required for AD
     ADWVDSecretsGroupName                 = "WVDSecrets"                        # default

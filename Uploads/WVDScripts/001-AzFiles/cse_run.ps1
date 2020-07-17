@@ -144,38 +144,61 @@ LogInfo("## 1 - EVALUATE ##")
 LogInfo("##################")
 foreach ($config in $azfilesconfig.azfilesconfig) {
     if ($config.enableAzureFiles) {
-        LogInfo("############################")
-        LogInfo("## 2 - Enable Azure Files ##")
-        LogInfo("############################")
-        
-        LogInfo("Set Execution Policy...")
-        #Change the execution policy to unblock importing AzFilesHybrid.psm1 module
-        Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser -Force
+        if ($config.identitySolution -eq "AD") {
+            LogInfo("############################")
+            LogInfo("## 2 - Enable Azure Files ##")
+            LogInfo("############################")
+            
+            LogInfo("Set Execution Policy...")
+            #Change the execution policy to unblock importing AzFilesHybrid.psm1 module
+            Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser -Force
 
-        #Define parameters
-        $ResourceGroupName = $config.ResourceGroupName
-        $ResourceGroupName = $ResourceGroupName.Replace('"', "'")
-        $StorageAccountName = $config.StorageAccountName
-        $StorageAccountName = $StorageAccountName.Replace('"', "'")
+            #Define parameters
+            $ResourceGroupName = $config.ResourceGroupName
+            $ResourceGroupName = $ResourceGroupName.Replace('"', "'")
+            $StorageAccountName = $config.StorageAccountName
+            $StorageAccountName = $StorageAccountName.Replace('"', "'")
 
-        # Register the target storage account with your active directory environment under the target OU (for example: specify the OU with Name as "UserAccounts" or DistinguishedName as "OU=UserAccounts,DC=CONTOSO,DC=COM"). 
-        # You can use to this PowerShell cmdlet: Get-ADOrganizationalUnit to find the Name and DistinguishedName of your target OU. If you are using the OU Name, specify it with -OrganizationalUnitName as shown below. If you are using the OU DistinguishedName, you can set it with -OrganizationalUnitDistinguishedName. You can choose to provide one of the two names to specify the target OU.
-        # You can choose to create the identity that represents the storage account as either a Service Logon Account or Computer Account (default parameter value), depends on the AD permission you have and preference. 
-        # Run Get-Help Join-AzStorageAccountForAuth for more details on this cmdlet.
+            # Register the target storage account with your active directory environment under the target OU (for example: specify the OU with Name as "UserAccounts" or DistinguishedName as "OU=UserAccounts,DC=CONTOSO,DC=COM"). 
+            # You can use to this PowerShell cmdlet: Get-ADOrganizationalUnit to find the Name and DistinguishedName of your target OU. If you are using the OU Name, specify it with -OrganizationalUnitName as shown below. If you are using the OU DistinguishedName, you can set it with -OrganizationalUnitDistinguishedName. You can choose to provide one of the two names to specify the target OU.
+            # You can choose to create the identity that represents the storage account as either a Service Logon Account or Computer Account (default parameter value), depends on the AD permission you have and preference. 
+            # Run Get-Help Join-AzStorageAccountForAuth for more details on this cmdlet.
 
-        $split = $config.domainName.Split(".")
-        $username = $($split[0] + "\" + $config.domainJoinUsername)
-        $scriptPath = $($PSScriptRoot + "\setup.ps1")
-        Set-Location $PSScriptRoot
+            $split = $config.domainName.Split(".")
+            $username = $($split[0] + "\" + $config.domainJoinUsername)
+            $scriptPath = $($PSScriptRoot + "\setup.ps1")
+            Set-Location $PSScriptRoot
 
-        LogInfo("Using PSExec, set execution policy for the admin user")
-        $scriptBlock = { .\psexec /accepteula -h -u $username -p $domainJoinPassword -c "powershell.exe" Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser -Force }
-        Invoke-Command $scriptBlock -Verbose
+            LogInfo("Using PSExec, set execution policy for the admin user")
+            $scriptBlock = { .\psexec /accepteula -h -u $username -p $domainJoinPassword -c "powershell.exe" Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser -Force }
+            Invoke-Command $scriptBlock -Verbose
 
-        LogInfo("Execution policy for the admin user set. Now joining the storage account through another PSExec command... This command takes roughly 5 minutes")
-        $scriptBlock = { .\psexec /accepteula -h -u $username -p $domainJoinPassword -c "powershell.exe" "$scriptPath -S $StorageAccountName -RG $ResourceGroupName -U $AzureAdminUpn -P $AzureAdminPassword" }
-        Invoke-Command $scriptBlock -Verbose
+            LogInfo("Execution policy for the admin user set. Now joining the storage account through another PSExec command... This command takes roughly 5 minutes")
+            $scriptBlock = { .\psexec /accepteula -h -u $username -p $domainJoinPassword -c "powershell.exe" "$scriptPath -S $StorageAccountName -RG $ResourceGroupName -U $AzureAdminUpn -P $AzureAdminPassword" }
+            Invoke-Command $scriptBlock -Verbose
 
-        LogInfo("Azure Files Enabled!")
+            LogInfo("Azure Files Enabled!")
+        }
+        elseif ($config.identitySolution -eq "AADDS") {
+            LogInfo("############################")
+            LogInfo("## 2 - Enable Azure Files ##")
+            LogInfo("############################")
+            
+            LogInfo("Set Execution Policy...")
+            Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser -Force
+
+            LogInfo("Install module Az...")
+            Install-Module Az -Force
+
+            LogInfo("Connect to Azure...")
+            $credential = New-Object System.Management.Automation.PsCredential($AzureAdminUpn, (ConvertTo-SecureString $AzureAdminPassword -AsPlainText -Force))
+            Connect-AzAccount -Credential $credential
+            $context = Get-AzContext
+            Select-AzSubscription -SubscriptionId $context.Subscription.Id
+
+            LogInfo("Set AzStorageAccount AADDS switch...")
+            Set-AzStorageAccount -ResourceGroupName $ResourceGroupName -Name $StorageAccountName -EnableAzureActiveDirectoryDomainServicesForFile $true
+            LogInfo("Azure files enabled!")
+        }
     }
 }

@@ -115,7 +115,6 @@ if ($RoleAssignment.RoleDefinitionName -eq "Owner" -or $RoleAssignment.RoleDefin
 	
 	# Get the Service Principal
 	Get-AzADServicePrincipal -ApplicationId $applicationId
-	$ServicePrincipalName = $ServicePrincipal.ServicePrincipalNames
 	Write-Output "Service Principal creation completed successfully for AppName $AppName (Application Id is: $applicationId)" -Verbose
 
 	$ownerId = (Get-AzADUser -UserPrincipalName $username).Id
@@ -156,18 +155,15 @@ if ($RoleAssignment.RoleDefinitionName -eq "Owner" -or $RoleAssignment.RoleDefin
 	# Add the WVD API,Log Analytics API and Microsoft Graph API permissions to the ADApplication
 	Set-AzureADApplication -ObjectId $azAdApplication.ObjectId -RequiredResourceAccess $AzureAdResouceAcessObject,$AzureServMgmtApiResouceAcessObject,$AzureGraphApiAccessObject -ErrorAction Stop
     #Set-AzureADApplication -ObjectId $azAdApplication.ObjectId -Oauth2Permissions $AzureAdOauth2Object -Oauth2RequirePostResponse $false -Oauth2AllowImplicitFlow $true
-    
+	
+	# Create credential for the service principal and store in the automation account
 	$global:servicePrincipalCredentials = New-Object System.Management.Automation.PSCredential ($applicationId, $secureClientSecret)
+	New-AzAutomationCredential -AutomationAccountName $AutomationAccountName -Name "ServicePrincipalCred" -Value $servicePrincipalCredentials -ResourceGroupName $ResourceGroupName
 
 	# Create new automation variables with the newly created service principal details in them for use in the devops setup script
 	New-AzAutomationVariable -AutomationAccountName $AutomationAccountName -Name "PrincipalId" -Encrypted $False -Value $applicationId -ResourceGroupName $ResourceGroupName
 	New-AzAutomationVariable -AutomationAccountName $AutomationAccountName -Name "Secret" -Encrypted $False -Value $secureClientSecret -ResourceGroupName $ResourceGroupName
 	New-AzAutomationVariable -AutomationAccountName $AutomationAccountName -Name "ObjectId" -Encrypted $False -Value $azAdApplication.ObjectId -ResourceGroupName $ResourceGroupName
-	
-	New-AzAutomationCredential -AutomationAccountName $AutomationAccountName -Name "ServicePrincipalCred" -Value $servicePrincipalCredentials -ResourceGroupName $ResourceGroupName
-	
-	# Get the Client Id/Application Id and Client Secret
-	Write-Output "Credentials for the service principal are stored in the `$servicePrincipalCredentials object"
 
 	# Assign service principal contributor and user acess administrator roles on subscription level
 	New-AzRoleAssignment -RoleDefinitionName "Contributor" -ApplicationId $applicationId

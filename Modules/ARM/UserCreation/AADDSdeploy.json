@@ -1,0 +1,74 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "computerName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the VM with the domain controller."
+            }
+        },
+        "_artifactsLocation": {
+            "type": "string",
+            "metadata": {
+                "description": "Location of artifacts."
+            }
+        },
+        "existingDomainName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of existing domain."
+            }
+        },
+        "targetGroup": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the user group to be created"
+            }
+        },
+        "identityName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of Managed identity used to run this script."
+            }
+        },
+        "azureAdminUpn": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of Managed identity used to run this script."
+            }
+        },
+        "azureAdminPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Name of Managed identity used to run this script."
+            }
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Resources/deploymentScripts",
+            "apiVersion": "2019-10-01-preview",
+            "name": "createUsers",
+            "location": "[resourcegroup().location]",
+            "dependsOn": [
+            ],
+            "kind": "AzurePowerShell",
+            "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                    "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities/', parameters('identityName'))]": {}
+                }
+            },
+            "properties": {
+                "forceUpdateTag": 1,
+                "azPowerShellVersion": "3.0",
+                "timeout": "PT30M",
+                "arguments": "[concat('-username ', parameters('azureAdminUpn'), ' -password ', parameters('azureAdminPassword'), ' -targetgroup ', parameters('targetGroup'), ' -domainName ', parameters('existingDomainName'), ' -artifactsLocation ', parameters('_artifactsLocation'))]",
+                "primaryScriptUri": "[concat(parameters('_artifactsLocation'),'/Modules/ARM/UserCreation/scripts/AADDSCreateUsers.ps1')]",
+                "cleanupPreference": "OnSuccess",
+                "retentionInterval": "P1D"
+            }
+        }
+    ]
+}

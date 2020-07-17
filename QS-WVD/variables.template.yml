@@ -166,7 +166,7 @@ variables:
 #region specific
 
 ## IdentityApproach (AD or AADDS)
-- name: identityApproach
+- name: identitySolution
   value: "AD"
 
 #endregion
