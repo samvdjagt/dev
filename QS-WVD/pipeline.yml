@@ -172,8 +172,8 @@ stages:
                       parameterFilePath             = $parameterFilePath
                     }
                     
-                    Write-Verbose "Checking identity approach: $(identityApproach)" -Verbose
-                    If("$(identityApproach)" -eq "AADDS") {
+                    Write-Verbose "Checking identity approach: $(identitySolution)" -Verbose
+                    If("$(identitySolution)" -eq "AADDS") {
                       Write-Verbose "Creating azureFilesIdentityBasedAuthentication object and set to AADDS" -Verbose
                       $parameterObjects=@{
                         azureFilesIdentityBasedAuthentication=@{
